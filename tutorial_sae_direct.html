@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAE 評価者間不一致の実例 | NMA-GRADE チュートリアル</title>
+  <link rel="stylesheet" href="assets/css/nma-grade-tutorial.css">
+  <style>
+    h1 { color: #721c24; }
+    .domain-title { color: #dc3545; }
+    .rating-btn   { border-color: #dc3545; }
+    .rating-btn:hover { background: #dc3545; color: white; }
+    .next-btn.primary { background: #dc3545; }
+    .next-btn.primary:hover { background: #a71d2a; }
+    .algorithm-box {
+      background: #fce4e4;
+      border: 2px solid #dc3545;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 12px 0;
+    }
+    .weight-viz { display: flex; align-items: center; gap: 10px; margin: 5px 0; }
+    .weight-bar { height: 18px; border-radius: 3px; }
+    .weight-bar.high { background: #dc3545; }
+    .weight-bar.low  { background: #28a745; }
+    .weight-bar.some { background: #ffc107; }
+    .rater-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92em; }
+    .rater-table th { background: #dc3545; color: white; padding: 8px 12px; text-align: left; }
+    .rater-table td { padding: 8px 12px; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+    .rater-table tr:nth-child(even) td { background: #fdf5f5; }
+    .quote-box {
+      background: #fff8f0;
+      border-left: 4px solid #fd7e14;
+      padding: 12px 16px;
+      margin: 12px 0;
+      border-radius: 0 6px 6px 0;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎓 チュートリアル: SAE（重篤な有害事象）の直接エビデンスGRADE評価</h1>
+<p>この例は Kamso et al. (2026) <em>Journal of Clinical Epidemiology</em> Appendix 4 の実際の評価者間不一致例を基にしています。</p>
+<p><strong>重要:</strong> この例では、自動判定に対して2名の評価者が<em>異なる判断</em>を示した実際のケースを学びます。</p>
+
+<div class="step-indicator" id="stepIndicator">
+  <div class="step active" id="step1">1</div>
+  <div class="step pending" id="step2">2</div>
+  <div class="step pending" id="step3">3</div>
+  <div class="step pending" id="step4">4</div>
+</div>
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill" style="width:25%"></div>
+</div>
+
+<!-- ========== STEP 1: データ確認 ========== -->
+<div id="section1">
+  <div class="scenario-box" style="border-left-color:#dc3545;">
+    <h2>📋 シナリオ: SAE（重篤な有害事象）の評価</h2>
+    <p>DMARD-naïve RA 患者における生物学的製剤の安全性評価（SAE）です。</p>
+    <p>以下の4研究のデータを確認してください。</p>
+
+    <table class="info-table">
+      <tr><th>研究</th><th>RoB</th><th>間接性</th><th>重み</th><th>主な特徴</th></tr>
+      <tr>
+        <td>Study_1990s_A</td>
+        <td><span class="rob-badge rob-high">High</span></td>
+        <td><span class="rob-badge rob-high">High</span></td>
+        <td><strong>35%</strong></td>
+        <td>1990年代、MTX 5 mg/week、入院患者</td>
+      </tr>
+      <tr>
+        <td>Study_1990s_B</td>
+        <td><span class="rob-badge rob-high">High</span></td>
+        <td><span class="rob-badge rob-high">High</span></td>
+        <td><strong>25%</strong></td>
+        <td>1995年、MTX 7.5 mg/week</td>
+      </tr>
+      <tr>
+        <td>Study_2010s_A</td>
+        <td><span class="rob-badge rob-low">Low</span></td>
+        <td><span class="rob-badge rob-low">Low</span></td>
+        <td><strong>25%</strong></td>
+        <td>2012年、MTX 15 mg/week、二重盲検RCT</td>
+      </tr>
+      <tr>
+        <td>Study_2010s_B</td>
+        <td><span class="rob-badge rob-some">Some Concerns</span></td>
+        <td><span class="rob-badge rob-some">Some Concerns</span></td>
+        <td><strong>15%</strong></td>
+        <td>2015年、MTX 12 mg/week</td>
+      </tr>
+    </table>
+
+    <p><strong>重みの内訳（可視化）:</strong></p>
+    <div class="weight-viz">
+      <span style="width:130px; font-size:0.9em;">High RoB 研究</span>
+      <div class="weight-bar high" style="width:180px;"></div>
+      <span>60%（35% + 25%）</span>
+    </div>
+    <div class="weight-viz">
+      <span style="width:130px; font-size:0.9em;">Low RoB 研究</span>
+      <div class="weight-bar low" style="width:75px;"></div>
+      <span>25%</span>
+    </div>
+    <div class="weight-viz">
+      <span style="width:130px; font-size:0.9em;">Some Concerns</span>
+      <div class="weight-bar some" style="width:45px;"></div>
+      <span>15%</span>
+    </div>
+  </div>
+
+  <button class="next-btn primary" style="display:block;" onclick="showSection(2)">
+    データを確認したら次のステップへ →
+  </button>
+</div>
+
+<!-- ========== STEP 2: 自動アルゴリズム ========== -->
+<div id="section2" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">⚠️ ステップ2: 自動アルゴリズムの計算</div>
+
+    <div class="algorithm-box">
+      <strong>🤖 バイアスリスク（RoB）の自動判定ルール（Table 1 より）:</strong><br><br>
+      High RoB の累積重み<br>
+      = Study_1990s_A（35%）+ Study_1990s_B（25%）= <strong>60%</strong><br><br>
+      閾値: High RoB の累積重みが <strong>50% 超</strong> → Very Serious（2段階ダウングレード）<br><br>
+      → 自動判定（RoB）: <strong style="color:#721c24;">Very Serious</strong>
+    </div>
+
+    <div class="algorithm-box" style="margin-top:12px;">
+      <strong>🤖 間接性の自動判定ルール:</strong><br><br>
+      High indirectness の累積重み<br>
+      = Study_1990s_A（35%）+ Study_1990s_B（25%）= <strong>60%</strong>（50% 超）<br><br>
+      → 自動判定（間接性）: <strong style="color:#721c24;">Serious（1段階ダウングレード）</strong><br>
+      ※ 間接性ドメインはより保守的なルールを適用（Table 1）
+    </div>
+
+    <p><strong>❓ 質問1:</strong> RoB の自動判定結果は何ですか？</p>
+    <button class="rating-btn" onclick="q1(this,'very_serious')">Very Serious（2段階）</button>
+    <button class="rating-btn" onclick="q1(this,'serious')">Serious（1段階）</button>
+    <button class="rating-btn" onclick="q1(this,'some_concerns')">Some Concerns</button>
+    <button class="rating-btn" onclick="q1(this,'not_serious')">Not Serious</button>
+
+    <div id="q1fb" class="feedback"></div>
+    <button class="next-btn primary" id="nxt2" onclick="showSection(3)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 3: 評価者の判断比較 ========== -->
+<div id="section3" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">👥 ステップ3: 評価者の判断比較（Appendix 4 実際のデータ）</div>
+
+    <p>2名の評価者（GlenとSam）が独立してGRADE評価を行いました。以下がその比較です。</p>
+
+    <table class="rater-table">
+      <tr>
+        <th>評価者</th>
+        <th>RoB</th>
+        <th>間接性</th>
+        <th>不一致性</th>
+        <th>総合評価</th>
+        <th>コメント・根拠</th>
+      </tr>
+      <tr>
+        <td><strong>自動判定</strong></td>
+        <td>Serious</td>
+        <td><span class="rob-badge rob-high">Serious</span></td>
+        <td>Not serious</td>
+        <td><span class="grade-low">Low</span></td>
+        <td>アルゴリズムによる機械的判定</td>
+      </tr>
+      <tr style="background:#f0fff4;">
+        <td><strong>Glen</strong></td>
+        <td>Serious</td>
+        <td><span class="rob-badge rob-some">Some Concerns ✏️</span></td>
+        <td>Not serious</td>
+        <td><span class="grade-moderate">Moderate</span></td>
+        <td>間接性を修正：Low indirectness 試験の点推定値と近似</td>
+      </tr>
+      <tr style="background:#fff8f0;">
+        <td><strong>Sam</strong></td>
+        <td>Serious</td>
+        <td><span class="rob-badge rob-high">Serious</span></td>
+        <td>Not serious</td>
+        <td><span class="grade-low">Low</span></td>
+        <td>自動判定を維持：60%が1990年代試験、MTX低用量はSAEに影響しうる</td>
+      </tr>
+      <tr style="background:#e8f0fe;">
+        <td><strong>最終合意</strong></td>
+        <td>Serious</td>
+        <td><span class="rob-badge rob-high">Serious</span></td>
+        <td>Not serious</td>
+        <td><span class="grade-low"><strong>Low</strong></span></td>
+        <td>Sam の意見を採用、自動判定を維持</td>
+      </tr>
+    </table>
+
+    <p><strong>Glenのコメント（原文）:</strong></p>
+    <div class="quote-box">
+      "On the fence too… I thought the point estimates were similar to the study with low indirectness, although one could argue the opposite."
+    </div>
+
+    <p><strong>Samのコメント（原文）:</strong></p>
+    <div class="quote-box">
+      "Not convinced that I can see a strong rationale for modifying the indirectness rating – 60% of the weight comes from studies from the 1990s that were rated as 'high' for indirectness (presumably due to low doses of MTX, which could plausibly impact incidence of SAEs). So my preference would be to stay with 'Serious' for Indirectness."
+    </div>
+
+    <p><strong>❓ 質問2:</strong> Glen が間接性を「Some Concerns」に変更した根拠として最も適切なものはどれですか？</p>
+    <button class="rating-btn" onclick="q2(this,'a')">点推定値が Low indirectness 試験と近似していたため</button>
+    <button class="rating-btn" onclick="q2(this,'b')">High indirectness 試験の重みが 50% 未満だったため</button>
+    <button class="rating-btn" onclick="q2(this,'c')">SAE は間接性の影響を受けないため</button>
+    <button class="rating-btn" onclick="q2(this,'d')">アルゴリズムに計算ミスがあったため</button>
+
+    <div id="q2fb" class="feedback"></div>
+    <button class="next-btn primary" id="nxt3" onclick="showSection(4)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 4: 批判的思考 ========== -->
+<div id="section4" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">🤔 ステップ4: 批判的思考 — なぜ Sam の判断が採用されたか？</div>
+
+    <p>Glen は確実性を Low → Moderate に上げようとしましたが、Sam はそれに反対し、最終的に Low で合意されました。</p>
+
+    <div style="background:#e3f2fd; border:1px solid #2c7be5; padding:14px; border-radius:6px; margin:12px 0;">
+      <strong>📌 重要な対比:</strong><br><br>
+      <strong>Glen の論理:</strong> 点推定値が近似 → 実質的な間接性の影響は小さい → Some Concerns<br><br>
+      <strong>Sam の論理:</strong> 60% の重みを持つ1990年代試験はMTX低用量 → MTX低用量はSAE発生率に影響しうる
+      → アウトカム特異的な考察が必要 → Serious を維持
+    </div>
+
+    <div style="background:#fff3cd; border:1px solid #ffc107; padding:14px; border-radius:6px; margin:12px 0;">
+      <strong>💡 ポイント:</strong><br>
+      HAQ-DI（身体機能）と SAE（重篤有害事象）では、MTX低用量の影響が<strong>異なる可能性</strong>があります。<br>
+      ・HAQ-DI: MTX用量が身体機能に与える影響は相対的に小さい可能性<br>
+      ・SAE: MTX低用量により免疫抑制が不十分 → SAE発生パターンが現代と異なる可能性
+    </div>
+
+    <p><strong>❓ 質問3:</strong> この例から学べる最も重要な教訓はどれですか？</p>
+    <button class="rating-btn" onclick="q3(this,'a')">自動判定は常に正しいので変更すべきでない</button>
+    <button class="rating-btn" onclick="q3(this,'b')">点推定値の類似性は根拠になるが、アウトカム特異的な考察も必要</button>
+    <button class="rating-btn" onclick="q3(this,'c')">評価者間の不一致は常に中間値を取るべき</button>
+    <button class="rating-btn" onclick="q3(this,'d')">より楽観的な判断を優先すべき</button>
+
+    <div id="q3fb" class="feedback"></div>
+  </div>
+
+  <div class="completion-box" id="completeSAE">
+    <h2>✅ チュートリアル完了！</h2>
+    <p><strong>SAE 評価の重要なポイント:</strong></p>
+    <ul>
+      <li>SAE は MTX 用量に影響される可能性があり、間接性評価が特に重要</li>
+      <li>点推定値の類似性という根拠は重要だが、アウトカム特異的な考察も必要</li>
+      <li>自動判定への修正は「変更理由の説得力」が評価される — 60% の重みを持つ高間接性研究の影響は無視しにくい</li>
+      <li>最終的にはより<strong>保守的な判断</strong>（Low）が採用された</li>
+      <li>GRADEは機械的な適用ではなく、<strong>専門的判断との組み合わせ</strong>が重要</li>
+    </ul>
+    <p style="margin-top:16px;">
+      <a href="tutorial_indirect_acr50.html" class="start-btn">次の例: ACR50 間接・NMA評価 →</a>
+    </p>
+  </div>
+</div>
+
+<script src="assets/js/common.js"></script>
+<script src="assets/js/progress.js"></script>
+<script>
+function showSection(n) {
+  for (var i = 1; i <= 4; i++) {
+    var sec  = document.getElementById('section' + i);
+    var step = document.getElementById('step' + i);
+    if (sec)  sec.style.display = (i === n) ? 'block' : 'none';
+    if (step) step.className = 'step ' + (i < n ? 'completed' : i === n ? 'active' : 'pending');
+  }
+  document.getElementById('progressFill').style.width = (n * 25) + '%';
+  window.scrollTo(0, 100);
+}
+
+function q1(btn, answer) {
+  document.querySelectorAll('#section2 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('q1fb');
+  if (answer === 'very_serious') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！High RoB の累積重みが 60%（>50%）のため、アルゴリズムは Very Serious（2段階ダウングレード）と判定します。ただし実際のAppendix 4では「Serious」と記載されており、レビュー固有の調整が加えられています。';
+  } else if (answer === 'serious') {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '⚠️ 惜しいですが、純粋なアルゴリズムでは High RoB 累積重み 60%（>50%）から Very Serious が導かれます。ただし実際の論文では Serious として記録されており、レビュー固有の判断が加えられています。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ High RoB 累積重みが 60%（>50% の閾値を超える）ため、Very Serious が自動判定です。ルールを再確認してください。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('nxt2').style.display = 'inline-block';
+}
+
+function q2(btn, answer) {
+  document.querySelectorAll('#section3 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('q2fb');
+  if (answer === 'a') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！Glen のコメント（"point estimates were similar to the study with low indirectness"）が示す通り、Low indirectness 試験との点推定値の近似性が根拠でした。これはGRADE原則の「judicious consideration」の具体的な適用例です。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ 実際のコメントによると、Glen の主な根拠は「Low indirectness 試験との点推定値の類似性」でした。High indirectness 研究の重みは 60%（>50%）であり、閾値未満というわけではありません。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('nxt3').style.display = 'inline-block';
+}
+
+function q3(btn, answer) {
+  document.querySelectorAll('#section4 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('q3fb');
+  if (answer === 'b') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！この例の核心は、点推定値の類似性という根拠は重要ですが、SAE に対する MTX 低用量の影響という<strong>アウトカム特異的な考察</strong>を加えることで、より根拠のある判断が可能という点です。Sam のコメントがそれを明確に示しています。';
+    document.getElementById('completeSAE').style.display = 'block';
+    NMAProgress.markCompleted('tutorial_sae_direct');
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ この例では、点推定値の類似性という根拠と、SAE への MTX 用量影響という専門的考察の<strong>バランス</strong>が重要でした。自動判定は参照点ですが、アウトカム特異的な判断が最終決定に重要な役割を果たします。';
+  }
+  fb.style.display = 'block';
+}
+</script>
+
+</body>
+</html>

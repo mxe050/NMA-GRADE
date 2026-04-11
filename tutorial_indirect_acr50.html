@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACR50 間接・NMAエビデンス評価 | NMA-GRADE チュートリアル</title>
+  <link rel="stylesheet" href="assets/css/nma-grade-tutorial.css">
+  <style>
+    h1 { color: #3d1a6b; }
+    h2 { color: #6f42c1; }
+    .domain-title { color: #6f42c1; }
+    .scenario-box { border-left-color: #6f42c1; }
+    .rating-btn   { border-color: #6f42c1; }
+    .rating-btn:hover { background: #6f42c1; color: white; }
+    .next-btn.primary { background: #6f42c1; }
+    .next-btn.primary:hover { background: #5a2d9e; }
+    .automated-badge { background: #e8d5f5; color: #6f42c1; }
+    .algorithm-box {
+      background: #f3e5f5;
+      border: 2px solid #6f42c1;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 12px 0;
+    }
+    .network-diagram {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin: 14px 0;
+    }
+    .node {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+      font-size: 0.82em;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .node-target    { background: #6f42c1; }
+    .node-reference { background: #28a745; }
+    .node-target2   { background: #fd7e14; }
+    .edge-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.82em;
+      color: #495057;
+      min-width: 90px;
+    }
+    .completion-box { background: #e8d5f5; border-color: #6f42c1; }
+    .completion-box h2 { color: #3d1a6b; }
+  </style>
+</head>
+<body>
+
+<h1>🎓 チュートリアル: 間接・NMAエビデンスのGRADE評価</h1>
+<p><strong>症例:</strong> ACR50（50% 改善）アウトカム — DMARD-naïve 関節リウマチ</p>
+<p>この例は Kamso et al. (2026) <em>Journal of Clinical Epidemiology</em> Part 2 の手法に基づいています。</p>
+
+<div class="step-indicator" id="stepIndicator">
+  <div class="step active" id="step1">1</div>
+  <div class="step pending" id="step2">2</div>
+  <div class="step pending" id="step3">3</div>
+  <div class="step pending" id="step4">4</div>
+  <div class="step pending" id="step5">5</div>
+  <div class="step pending" id="step6">6</div>
+</div>
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill" style="width:16%"></div>
+</div>
+
+<!-- ========== STEP 1: ネットワーク構造 ========== -->
+<div id="section1">
+  <div class="scenario-box">
+    <h2>📋 ネットワーク構造の確認</h2>
+    <p>以下のネットワークで、<strong>Treatment A vs Treatment C</strong>（直接比較なし）の間接エビデンスを評価します。</p>
+    <p>MTX を共通比較対照として、A→MTX→C という一次ループが形成されています。</p>
+
+    <div class="network-diagram">
+      <p style="font-weight:bold; color:#3d1a6b; margin-bottom:16px;">ネットワーク図（一次ループ）</p>
+      <div style="display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div class="node node-target">Treatment<br>A</div>
+          <div style="font-size:0.78em; color:#555; margin-top:4px;">評価対象</div>
+        </div>
+        <div class="edge-info">
+          <div style="font-size:1.5em; color:#6f42c1;">↔</div>
+          <div><strong>A–MTX（直接）</strong></div>
+          <div>CoE: <span class="grade-moderate">Moderate</span></div>
+          <div>貢献率: <strong>45%</strong></div>
+        </div>
+        <div style="text-align:center;">
+          <div class="node node-reference">MTX<br>（対照）</div>
+          <div style="font-size:0.78em; color:#555; margin-top:4px;">共通比較対照</div>
+        </div>
+        <div class="edge-info">
+          <div style="font-size:1.5em; color:#6f42c1;">↔</div>
+          <div><strong>MTX–C（直接）</strong></div>
+          <div>CoE: <span class="grade-low">Low</span></div>
+          <div>貢献率: <strong>35%</strong></div>
+        </div>
+        <div style="text-align:center;">
+          <div class="node node-target2">Treatment<br>C</div>
+          <div style="font-size:0.78em; color:#555; margin-top:4px;">評価対象</div>
+        </div>
+      </div>
+      <div style="margin-top:16px; background:white; border:1px solid #dee2e6; border-radius:6px; padding:12px; text-align:left; display:inline-block; min-width:320px;">
+        <strong>貢献行列（Contribution Matrix）の結果:</strong><br>
+        A–MTX（直接）: <strong>45%</strong> → 直接エビデンス CoE: <span class="grade-moderate">Moderate</span><br>
+        MTX–C（直接）: <strong>35%</strong> → 直接エビデンス CoE: <span class="grade-low">Low</span><br>
+        その他の経路: 20%<br>
+        上位2経路の合計: <strong>80%</strong>（>50%）
+      </div>
+    </div>
+
+    <p><strong>❓ 質問:</strong> 間接エビデンス（A vs C）の初期確実性評価の出発点はどれですか？<br>
+    ヒント: GRADE guidance では「最も多く貢献している上位2つの直接エビデンスのうち、<em>最も低い</em>確実性を採用」します。</p>
+
+    <button class="rating-btn" onclick="checkInitial(this,'high')">High（RCTの初期評価）</button>
+    <button class="rating-btn" onclick="checkInitial(this,'moderate')">Moderate（A–MTX: 最高貢献）</button>
+    <button class="rating-btn" onclick="checkInitial(this,'low')">Low（上位2つの最低値）</button>
+    <button class="rating-btn" onclick="checkInitial(this,'average')">Moderate と Low の平均</button>
+
+    <div id="initialFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next1Btn" onclick="showSection(2)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 2: 非推移性 ========== -->
+<div id="section2" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">🔀 ステップ2: 非推移性（Intransitivity）の評価 <span class="automated-badge">自動アルゴリズム</span></div>
+
+    <p>各直接エビデンス経路の間接性評価を使って、非推移性を自動判定します。</p>
+
+    <table class="info-table">
+      <tr><th>直接エビデンス</th><th>間接性評価</th><th>患者集団の差異</th><th>介入の差異</th></tr>
+      <tr>
+        <td>A–MTX（貢献率45%）</td>
+        <td><span class="rob-badge rob-some">Some Concerns</span></td>
+        <td>罹患期間 2〜3年（やや長め）</td>
+        <td>MTX 用量 8〜12 mg</td>
+      </tr>
+      <tr>
+        <td>MTX–C（貢献率35%）</td>
+        <td><span class="rob-badge rob-high">Serious</span></td>
+        <td>罹患期間 5年超、1990年代試験</td>
+        <td>MTX 用量 5〜8 mg（非常に低い）</td>
+      </tr>
+    </table>
+
+    <div class="algorithm-box">
+      <strong>📐 自動アルゴリズム（Figure 2 より）:</strong><br><br>
+      ルール（判定の優先順位）:<br>
+      1. いずれかの経路が「Serious」→ 非推移性を「Serious」→ 1段階ダウングレード<br>
+      2. 両方が「Not Serious」→ 非推移性を「Not Serious」<br>
+      3. 「Some Concerns」のみ → 非推移性を「Some Concerns」フラグ（自動ダウングレードなし）<br><br>
+      今回: MTX–C の間接性が <strong style="color:#721c24;">Serious</strong><br>
+      → 自動判定: <strong style="color:#721c24;">Serious（1段階ダウングレード）</strong>
+    </div>
+
+    <div style="background:#e8f4fd; border:1px solid #2c7be5; padding:12px; border-radius:6px; margin:12px 0;">
+      <strong>⚠️ 重要な注意（論文より）:</strong><br>
+      上位2経路の合計貢献率 = 45% + 35% = <strong>80%</strong>（>50%）<br>
+      → アルゴリズムの信頼性は高い。<br>
+      合計が 50% 未満の場合、専門家はアルゴリズムの判断に懸念を示しました。
+    </div>
+
+    <p><strong>❓ 質問:</strong> 非推移性の評価を選択してください。</p>
+    <button class="rating-btn" onclick="checkIntransitivity(this,'not_serious')">深刻でない（Not Serious）</button>
+    <button class="rating-btn" onclick="checkIntransitivity(this,'some_concerns')">いくらかの懸念（Some Concerns）</button>
+    <button class="rating-btn" onclick="checkIntransitivity(this,'serious')">深刻（Serious）→ 1段階ダウングレード</button>
+
+    <div id="intransitivityFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next2Btn" onclick="showSection(3)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 3: 間接エビデンス確実性 ========== -->
+<div id="section3" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">📊 ステップ3: 間接エビデンスの確実性（ここまでの計算）</div>
+
+    <div class="algorithm-box">
+      <strong>📐 計算の確認:</strong><br><br>
+      Step 1: 出発点 = 上位2経路の最低 CoE = <span class="grade-low">Low</span><br>
+      Step 2: 非推移性 = Serious → <strong>1段階ダウングレード</strong><br><br>
+      Low − 1段階 = <span class="grade-vlow">Very Low</span><br><br>
+      → 間接エビデンスの確実性（不精確さ除く）: <strong><span class="grade-vlow">Very Low</span></strong>
+    </div>
+
+    <p><strong>❓ 確認問題:</strong> ここまでの計算で間接エビデンスの仮確実性（不精確さを除く）は何になりますか？</p>
+
+    <button class="rating-btn" onclick="checkIndirect(this,'low')">Low ⊕⊕◯◯</button>
+    <button class="rating-btn" onclick="checkIndirect(this,'very_low')">Very Low ⊕◯◯◯</button>
+    <button class="rating-btn" onclick="checkIndirect(this,'moderate')">Moderate ⊕⊕⊕◯</button>
+    <button class="rating-btn" onclick="checkIndirect(this,'high')">High ⊕⊕⊕⊕</button>
+
+    <div id="indirectFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next3Btn" onclick="showSection(4)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 4: NMA推定値 + 非整合性 ========== -->
+<div id="section4" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">🌐 ステップ4: NMA推定値の評価と非整合性（Incoherence）<span class="automated-badge">自動アルゴリズム</span></div>
+
+    <table class="info-table">
+      <tr><th>推定値の種類</th><th>貢献率</th><th>仮確実性（不精確さ除く）</th></tr>
+      <tr>
+        <td>直接エビデンス（A–C）</td>
+        <td>0%（直接比較なし）</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>間接エビデンス（A–MTX–C）</td>
+        <td>100%</td>
+        <td><span class="grade-vlow">Very Low</span></td>
+      </tr>
+    </table>
+
+    <div class="algorithm-box">
+      <strong>📐 NMA 初期評価アルゴリズム（Figure 3 より）:</strong><br><br>
+      直接比較なし → 間接エビデンスのみ → 間接エビデンスの仮確実性を NMA の出発点とする<br><br>
+      NMA 出発点: <span class="grade-vlow">Very Low</span><br><br>
+      非整合性（Incoherence）テスト:<br>
+      直接比較が存在しないため → <strong>評価不要</strong>
+    </div>
+
+    <p><strong>❓ 質問:</strong> A vs C の非整合性（Incoherence）評価はどうなりますか？</p>
+    <button class="rating-btn" onclick="checkIncoherence(this,'not_needed')">評価不要（直接比較なし）</button>
+    <button class="rating-btn" onclick="checkIncoherence(this,'not_serious')">Not Serious（整合している）</button>
+    <button class="rating-btn" onclick="checkIncoherence(this,'serious')">Serious（不整合あり）</button>
+
+    <div id="incoherenceFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next4Btn" onclick="showSection(5)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 5: 不精確さ ========== -->
+<div id="section5" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">📏 ステップ5: 不精確さ（Imprecision）の評価 <span class="automated-badge">自動計算ツール</span></div>
+
+    <p>最小化された文脈的枠組み（Minimally Contextualized Framework）に基づいて評価します。</p>
+
+    <table class="info-table">
+      <tr><th>パラメータ</th><th>値</th></tr>
+      <tr><td>NMA 推定値（リスク差）</td><td>12.5%</td></tr>
+      <tr><td>95% CrI（信頼区間）</td><td>−2.3% 〜 27.3%</td></tr>
+      <tr><td>小さな効果の閾値（MID）</td><td>5%</td></tr>
+      <tr><td>大きな効果の閾値</td><td>20%</td></tr>
+    </table>
+
+    <div class="algorithm-box">
+      <strong>📐 不精確さ評価のルール（Table 1 より）:</strong><br><br>
+      95% CrI: −2.3% 〜 27.3%<br><br>
+      確認ポイント:<br>
+      ・下限（−2.3%）が null（0%）を<strong>下回る</strong> → 効果なし〜有害の可能性を含む ✓<br>
+      ・上限（27.3%）が大きな効果閾値（20%）を<strong>超える</strong> → 大きな効果の可能性を含む ✓<br><br>
+      → CrI が null と大きな効果閾値の両方をまたぐ<br>
+      → <strong style="color:#721c24;">Very Serious（2段階ダウングレード）</strong>
+    </div>
+
+    <p><strong>❓ 質問:</strong> 不精確さの評価を選択してください。</p>
+    <button class="rating-btn" onclick="checkImprecision(this,'not_serious')">深刻でない</button>
+    <button class="rating-btn" onclick="checkImprecision(this,'serious')">深刻（1段階）</button>
+    <button class="rating-btn" onclick="checkImprecision(this,'very_serious')">非常に深刻（2段階）</button>
+    <button class="rating-btn" onclick="checkImprecision(this,'extremely_serious')">極めて深刻（3段階）</button>
+
+    <div id="imprecisionFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next5Btn" onclick="showSection(6)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 6: 最終評価 ========== -->
+<div id="section6" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">🏁 ステップ6: NMA 最終確実性評価</div>
+
+    <table class="info-table">
+      <tr><th>評価段階</th><th>出発点</th><th>調整内容</th><th>結果</th></tr>
+      <tr>
+        <td>直接エビデンス A–MTX</td>
+        <td>High</td>
+        <td>RoB: Some Concerns(−0.5), 間接性: Some Concerns(−0.5)</td>
+        <td><span class="grade-moderate">Moderate</span></td>
+      </tr>
+      <tr>
+        <td>直接エビデンス MTX–C</td>
+        <td>High</td>
+        <td>RoB: Serious(−1), 間接性: Serious(−1)</td>
+        <td><span class="grade-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>間接エビデンス（出発点）</td>
+        <td>—</td>
+        <td>上位2経路の最低値を採用</td>
+        <td><span class="grade-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>非推移性</td>
+        <td>Low</td>
+        <td>Serious → −1段階</td>
+        <td><span class="grade-vlow">Very Low</span></td>
+      </tr>
+      <tr>
+        <td>非整合性</td>
+        <td>—</td>
+        <td>評価不要（直接比較なし）</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>不精確さ</td>
+        <td>Very Low</td>
+        <td>Very Serious → −2段階</td>
+        <td><span class="grade-vlow">Extremely Low</span></td>
+      </tr>
+      <tr style="background:#e8d5f5;">
+        <td colspan="3"><strong>最終 NMA 確実性</strong></td>
+        <td><strong>Extremely Low → 表示上 Very Low に集約</strong></td>
+      </tr>
+    </table>
+
+    <p><strong>❓ 最終 NMA 確実性評価を選択してください:</strong></p>
+    <button class="rating-btn" onclick="checkFinal(this,'moderate')">Moderate ⊕⊕⊕◯</button>
+    <button class="rating-btn" onclick="checkFinal(this,'low')">Low ⊕⊕◯◯</button>
+    <button class="rating-btn" onclick="checkFinal(this,'very_low')">Very Low ⊕◯◯◯（Extremely Low を含む）</button>
+    <button class="rating-btn" onclick="checkFinal(this,'high')">High ⊕⊕⊕⊕</button>
+
+    <div id="finalFeedback" class="feedback"></div>
+  </div>
+
+  <div class="completion-box" id="completionBox" style="display:none; border:2px solid #6f42c1; border-radius:8px; padding:24px; margin:20px 0;">
+    <h2>🎉 チュートリアル完了！</h2>
+    <h3 style="color:#3d1a6b;">間接・NMAエビデンスのGRADE評価フロー まとめ</h3>
+    <div style="background:white; padding:16px; border-radius:6px; margin:12px 0; border:1px solid #dee2e6;">
+      <strong>Step B1:</strong> 貢献行列で上位2経路を特定 → A–MTX（45%）, MTX–C（35%）<br>
+      <strong>Step B2:</strong> 最低 CoE = Low → 非推移性 Serious → −1 → <span class="grade-vlow">Very Low</span><br>
+      <strong>Step C1:</strong> 直接比較なし → 間接エビデンスが NMA の出発点<br>
+      <strong>Step C2:</strong> 非整合性 → 評価不要（直接比較なし）<br>
+      <strong>Step C3:</strong> 不精確さ Very Serious → −2 → <span class="grade-vlow">Extremely Low（= Very Low）</span>
+    </div>
+    <p><strong>重要なポイント:</strong></p>
+    <ul>
+      <li>貢献行列は支配的な証拠経路を客観的に特定する強力なツール</li>
+      <li>上位2経路の合計が 50% 未満の場合、非推移性アルゴリズムの信頼性は低下する</li>
+      <li>「Extremely Low」は透明性のために使用するが、最終 SoF テーブルでは Very Low に集約</li>
+      <li>直接比較がない場合、非整合性テストは実施できない</li>
+    </ul>
+    <p style="margin-top:16px;">
+      <a href="index.html" class="start-btn">🏠 ホームに戻る</a>
+    </p>
+  </div>
+</div>
+
+<script src="assets/js/common.js"></script>
+<script src="assets/js/progress.js"></script>
+<script>
+function showSection(n) {
+  for (var i = 1; i <= 6; i++) {
+    var sec  = document.getElementById('section' + i);
+    var step = document.getElementById('step' + i);
+    if (sec)  sec.style.display = (i === n) ? 'block' : 'none';
+    if (step) step.className = 'step ' + (i < n ? 'completed' : i === n ? 'active' : 'pending');
+  }
+  document.getElementById('progressFill').style.width = Math.round(n / 6 * 100) + '%';
+  window.scrollTo(0, 100);
+}
+
+function checkInitial(btn, answer) {
+  document.querySelectorAll('#section1 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('initialFeedback');
+  if (answer === 'low') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！GRADE guidance（Brignardello-Petersen 2018）では、一次ループを構成する直接エビデンスの<strong>最も低い確実性</strong>を採用します。A–MTX（Moderate）と MTX–C（Low）の最低値は Low です。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ GRADE guidance では、上位2経路（A–MTX: Moderate, MTX–C: Low）のうち<strong>最も低い確実性</strong>（Low）を採用します。平均や最高値ではなく、最低値が出発点です。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next1Btn').style.display = 'inline-block';
+}
+
+function checkIntransitivity(btn, answer) {
+  document.querySelectorAll('#section2 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('intransitivityFeedback');
+  if (answer === 'serious') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！MTX–C 経路の間接性が Serious のため、アルゴリズムは非推移性を「Serious」と判定し、1段階ダウングレードします（Low → Very Low）。上位2経路の合計貢献率が 80%（>50%）なので、このアルゴリズムは信頼できます。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ MTX–C 経路の間接性が「Serious」のため、アルゴリズムのルール1が適用されます。「いずれかの経路が Serious → 非推移性 Serious」です。1990年代試験で MTX 用量が非常に低く（5〜8 mg）、現代の臨床実践と大きく異なります。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next2Btn').style.display = 'inline-block';
+}
+
+function checkIndirect(btn, answer) {
+  document.querySelectorAll('#section3 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('indirectFeedback');
+  if (answer === 'very_low') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！計算: 出発点 Low − 非推移性 Serious（1段階）= <strong>Very Low</strong>。次のステップで NMA 推定値と不精確さを評価します。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ 計算を確認してください。出発点（上位2経路の最低値）= Low、非推移性 Serious = −1段階 → Low − 1 = <strong>Very Low</strong> が正解です。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next3Btn').style.display = 'inline-block';
+}
+
+function checkIncoherence(btn, answer) {
+  document.querySelectorAll('#section4 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('incoherenceFeedback');
+  if (answer === 'not_needed') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！A vs C の直接比較が存在しないため、直接エビデンスと間接エビデンスを比較する非整合性テストは実施できません。評価不要です。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ A vs C の直接比較が存在しない（貢献率 0%）ため、非整合性テストは実施できません。非整合性とは直接エビデンスと間接エビデンスの乖離を評価するものです。評価不要が正解です。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next4Btn').style.display = 'inline-block';
+}
+
+function checkImprecision(btn, answer) {
+  document.querySelectorAll('#section5 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('imprecisionFeedback');
+  if (answer === 'very_serious') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！95% CrI（−2.3%〜27.3%）が null（0%）と大きな効果（20%）の両方を含みます。GRADE guidance（Zeng 2022, Table 1）に従い「Very Serious（2段階ダウングレード）」です。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ CrI が −2.3%〜27.3% と非常に広く、効果なし（0%）と大きな効果（>20%）の両方を含みます。これは Very Serious（2段階）に相当します。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next5Btn').style.display = 'inline-block';
+}
+
+function checkFinal(btn, answer) {
+  document.querySelectorAll('#section6 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('finalFeedback');
+  if (answer === 'very_low') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！計算: Low（間接出発点）→ −1（非推移性）= Very Low → −2（不精確さ Very Serious）= Extremely Low → 論文の SoF テーブルでは <strong>Very Low</strong> として表示します。「Extremely Low」カテゴリーは透明性のために内部的に使用します。';
+    document.getElementById('completionBox').style.display = 'block';
+    NMAProgress.markCompleted('tutorial_indirect_acr50');
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ 計算を再確認してください。Low（間接）− 1（非推移性 Serious）= Very Low − 2（不精確さ Very Serious）= Extremely Low → 表示上は <strong>Very Low</strong>（Extremely Low を含む）が正解です。';
+  }
+  fb.style.display = 'block';
+}
+</script>
+
+</body>
+</html>
