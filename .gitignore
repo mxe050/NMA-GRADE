@@ -1,0 +1,11 @@
+# Temporary files
+update_html.py
+update_html.js
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp

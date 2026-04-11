@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMA GRADE評価サポートツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;flex-direction:column;}
+        .card{background:white;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:32px 28px;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;}
+        .card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.2);}
+        .card-icon{font-size:3rem;margin-bottom:16px;line-height:1;}
+        .card-title{font-size:1.25rem;font-weight:800;margin-bottom:8px;}
+        .card-desc{font-size:0.85rem;color:#64748b;line-height:1.6;flex:1;margin-bottom:20px;}
+        .card-badge{display:inline-block;padding:2px 8px;border-radius:9999px;font-size:0.7rem;font-weight:700;margin-bottom:10px;}
+        .card-btn{display:block;text-align:center;padding:11px 0;border-radius:10px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:opacity 0.15s;}
+        .card-btn:hover{opacity:0.88;}
+        .btn-tutorial{background:linear-gradient(135deg,#667eea,#764ba2);color:white;}
+        .btn-tool{background:linear-gradient(135deg,#10b981,#059669);color:white;}
+        .btn-reference{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;}
+        .hero-subtitle{color:rgba(255,255,255,0.85);font-size:0.9rem;}
+        .lit-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.68rem;font-weight:600;margin:2px;}
+        .flow-arrow{color:rgba(255,255,255,0.5);font-size:1.4rem;display:flex;align-items:center;padding:0 4px;}
+        @media(max-width:768px){.flow-arrow{transform:rotate(90deg);padding:8px 0;}}
+    </style>
+</head>
+<body>
+<main class="flex-1 flex flex-col items-center justify-center p-6">
+
+    <!-- HERO -->
+    <div class="text-center mb-10 text-white">
+        <h1 class="text-3xl font-extrabold mb-2">🔬 NMA GRADE評価サポートツール</h1>
+        <p class="hero-subtitle mb-4">ネットワークメタアナリシスのエビデンス確実性評価を支援します</p>
+        <div class="flex flex-wrap justify-center gap-2 mb-3">
+            <span class="lit-badge src-izc">Izcovich BMJ 2023</span>
+            <span class="lit-badge src-kam">Kamso JCE 2026 P1&P2</span>
+            <span class="lit-badge src-brg">Brignardello-Petersen JCE 2018/2019/2021</span>
+            <span class="lit-badge src-puh">Puhan BMJ 2014</span>
+            <span class="lit-badge src-yao">Yao JCE 2026</span>
+        </div>
+        <p class="text-white/60 text-xs">評価ステップ: A（直接）→ B（間接）→ C（NMA）→ D（最良推定値選択）</p>
+    </div>
+
+    <!-- FLOW: 3 cards + arrows -->
+    <div class="flex flex-col md:flex-row items-stretch gap-2 w-full max-w-4xl">
+
+        <!-- Card 1: Tutorial -->
+        <div class="card flex-1">
+            <div class="card-badge" style="background:#dbeafe;color:#1e40af;">初めての方はこちら</div>
+            <div class="card-icon">🎓</div>
+            <div class="card-title" style="color:#1e40af;">チュートリアル</div>
+            <div class="card-desc">
+                <strong>COVID-19 NMAの例題</strong>を使って、A1→B1→B2→C1→C2→C3→D の全プロセスを手取り足取り体験。確認クイズ付き（11ステップ）。
+                <br><br>
+                完了後はデータを本体ツールへ自動引き継ぎできます。
+            </div>
+            <a href="tutorial.html" class="card-btn btn-tutorial">🎓 チュートリアルから始める</a>
+        </div>
+
+        <div class="flow-arrow hidden md:flex">→</div>
+
+        <!-- Card 2: Tool -->
+        <div class="card flex-1" style="border: 2px solid #10b981;">
+            <div class="card-badge" style="background:#d1fae5;color:#065f46;">メインツール</div>
+            <div class="card-icon">🔧</div>
+            <div class="card-title" style="color:#059669;">評価ツール v2.2</div>
+            <div class="card-desc">
+                自分のNMAデータでGRADE評価を実施。統合テーブル・CSV・SideSplit出力に対応。<br><br>
+                <strong>機能：</strong>自動出発点判定（15シナリオ）・不精確さ自動計算・Summary of Findings出力・JSON/CSV保存・リビングSR対応。
+            </div>
+            <a href="tool.html" class="card-btn btn-tool">🔧 評価ツールを使う</a>
+        </div>
+
+        <div class="flow-arrow hidden md:flex">↔</div>
+
+        <!-- Card 3: Reference -->
+        <div class="card flex-1">
+            <div class="card-badge" style="background:#ede9fe;color:#5b21b6;">判断基準の比較</div>
+            <div class="card-icon">📚</div>
+            <div class="card-title" style="color:#5b21b6;">文献差異リファレンス</div>
+            <div class="card-desc">
+                各ステップの判断基準について<strong>主要5文献のアプローチの違い</strong>を比較。どの方式を採用するか選択して保存できます。
+                <br><br>
+                12セクション・方式選択のlocalStorage保存・印刷対応。
+            </div>
+            <a href="reference.html" class="card-btn btn-reference">📚 文献リファレンスを開く</a>
+        </div>
+    </div>
+
+    <!-- FLOW DESCRIPTION -->
+    <div class="mt-8 text-center text-white/70 text-xs max-w-2xl">
+        <div class="flex flex-wrap justify-center items-center gap-2">
+            <span class="lit-badge" style="background:rgba(255,255,255,0.2);color:white;">① チュートリアルで例題体験</span>
+            <span>→</span>
+            <span class="lit-badge" style="background:rgba(255,255,255,0.2);color:white;">② 評価ツールに自データ入力</span>
+            <span>→</span>
+            <span class="lit-badge" style="background:rgba(255,255,255,0.2);color:white;">③ リファレンスで方式確認</span>
+            <span>→</span>
+            <span class="lit-badge" style="background:rgba(255,255,255,0.2);color:white;">④ SoF出力</span>
+        </div>
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="text-center text-white/50 text-xs py-4 px-6">
+    <p>NMA GRADE評価サポートツール |
+       Izcovich et al. BMJ 2023;381:e074495 |
+       Kamso et al. JCE 2026 |
+       Brignardello-Petersen et al. JCE 2018/2019/2021 |
+       Puhan et al. BMJ 2014;349:g5630 |
+       Yao et al. JCE 2026;189:112050
+    </p>
+    <p class="mt-1">
+        <a href="https://github.com/mxe050/NMA-GRADE" target="_blank" class="underline hover:text-white/80">GitHub: mxe050/NMA-GRADE</a>
+    </p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMA GRADE チュートリアル - 例題で学ぶ全プロセス</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f8fafc;min-height:100vh;}
+        .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:32px;border-radius:0 0 24px 24px;}
+        .step-card{background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:20px;overflow:hidden;transition:all 0.3s;}
+        .step-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;}
+        .step-header:hover{background:#f8fafc;}
+        .step-num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0;}
+        .step-a .step-num{background:#dbeafe;color:#1e40af;}
+        .step-b .step-num{background:#fce7f3;color:#9d174d;}
+        .step-c .step-num{background:#d1fae5;color:#065f46;}
+        .step-d .step-num{background:#fef3c7;color:#92400e;}
+        .step-body{padding:0 20px 20px;display:none;}
+        .step-body.active{display:block;}
+        .explain{background:#eff6ff;border-left:4px solid #3b82f6;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:0.88rem;}
+        .explain h5{color:#1e40af;font-weight:700;margin-bottom:4px;}
+        .explain .source{color:#6b7280;font-size:0.75rem;font-style:italic;}
+        .warn-box{background:#fefce8;border-left:4px solid #eab308;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:0.85rem;}
+        .diff-box{background:#fdf2f8;border-left:4px solid #ec4899;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:0.83rem;}
+        .diff-box h5{color:#9d174d;font-weight:700;margin-bottom:4px;}
+        .result-box{background:#ecfdf5;border-left:4px solid #10b981;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:0.88rem;}
+        .result-box h5{color:#065f46;font-weight:700;margin-bottom:4px;}
+        .data-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:12px 0;}
+        .data-table th{background:#f1f5f9;padding:6px 10px;text-align:left;font-size:0.78rem;border:1px solid #e2e8f0;}
+        .data-table td{padding:6px 10px;border:1px solid #e2e8f0;}
+        .grade-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;font-size:0.78rem;}
+        .grade-high{background:#d4edda;color:#155724;}
+        .grade-mod{background:#fff3cd;color:#856404;}
+        .grade-low{background:#f8d7da;color:#721c24;}
+        .grade-vlow{background:#f5c6cb;color:#721c24;}
+        .action-area{background:#f0f9ff;border:2px solid #93c5fd;border-radius:8px;padding:16px;margin:12px 0;}
+        .action-area h5{color:#1e40af;font-weight:700;margin-bottom:8px;}
+        .quiz-btn{padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s;border:2px solid transparent;}
+        .quiz-btn:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+        .quiz-btn.correct{background:#d4edda;border-color:#28a745;color:#155724;}
+        .quiz-btn.wrong{background:#f8d7da;border-color:#dc3545;color:#721c24;}
+        .quiz-btn.selected{border-color:#3b82f6;background:#dbeafe;}
+        .feedback{padding:12px;border-radius:8px;margin-top:8px;font-size:0.85rem;display:none;}
+        .feedback.show{display:block;}
+        .feedback.ok{background:#d4edda;color:#155724;}
+        .feedback.ng{background:#f8d7da;color:#721c24;}
+        .next-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;border:none;font-size:0.95rem;margin-top:16px;display:none;}
+        .next-btn.show{display:inline-block;}
+        .next-btn:hover{opacity:0.9;transform:translateY(-1px);}
+        .progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:16px 0;overflow:hidden;}
+        .progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);border-radius:3px;transition:width 0.5s ease;}
+        .nav-flow{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0;}
+        .nav-flow .flow-item{padding:4px 10px;border-radius:6px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+        .nav-flow .flow-item.done{background:#d4edda;color:#155724;}
+        .nav-flow .flow-item.current{background:#3b82f6;color:white;}
+        .nav-flow .flow-item.future{background:#e2e8f0;color:#94a3b8;}
+        .nav-flow .flow-arrow{color:#94a3b8;font-size:0.8rem;display:flex;align-items:center;}
+    </style>
+</head>
+<body>
+    <!-- HERO -->
+    <div class="hero">
+        <div class="page-nav">
+            <a href="index.html">&#127968; ホーム</a>
+            <a href="tool.html">&#128295; 評価ツール</a>
+            <a href="reference.html" target="_blank">&#128218; リファレンス</a>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">🎓 NMA GRADE評価 チュートリアル</h1>
+        <p class="text-white/90 text-sm mb-3">例題を使って、A1→B1→B2→C1→C2→C3→Dの全プロセスを<strong>手取り足取り</strong>体験します</p>
+        <div class="bg-white/20 rounded-lg p-3 text-sm">
+            <strong>例題:</strong> COVID-19治療NMA — 全身性コルチコステロイド vs 標準治療（死亡率）<br>
+            <span class="text-white/70 text-xs">出典: Izcovich et al. BMJ 2023;381:e074495, Fig 2-5 & Supplementary file 2, Example 1</span>
+        </div>
+        <div class="progress-bar mt-4"><div id="progressFill" class="progress-fill" style="width:0%"></div></div>
+        <div class="nav-flow mt-2" id="navFlow"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4" id="stepsContainer">
+        <!-- Steps will be rendered by JS -->
+    </div>
+
+    <!-- Transition to real data -->
+    <div id="transitionSection" class="max-w-4xl mx-auto p-4" style="display:none;">
+        <div class="step-card">
+            <div class="p-6">
+                <h2 class="text-xl font-bold text-purple-700 mb-4">🎉 チュートリアル完了！</h2>
+                <p class="mb-4">すべてのステップを体験しました。次は<strong>あなた自身のデータ</strong>で評価を行いましょう。</p>
+                <div class="explain">
+                    <h5>次のステップ</h5>
+                    <ol class="list-decimal list-inside space-y-2 text-sm">
+                        <li><strong>本体ツール（2_tool.html）</strong>を開く</li>
+                        <li>プロジェクト設定を入力（アウトカム名、参照治療、タイプ）</li>
+                        <li>NMA結果を入力（統合テーブル or CSV or SideSplit）</li>
+                        <li>チュートリアルで学んだ順番で各ステップを進める</li>
+                        <li>サマリーを確認し、CSV/JSON出力</li>
+                    </ol>
+                </div>
+                <button class="next-btn show" onclick="window.open('tool.html','_blank')">🔧 本体ツールを開く</button>
+                <button class="next-btn show ml-3" style="background:#6b7280;" onclick="window.open('reference.html','_blank')">📚 文献差異リファレンスを開く</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ===== TUTORIAL DATA: Example 1 from Izcovich et al. BMJ 2023 =====
+const EXAMPLE = {
+    title: "全身性コルチコステロイド vs 標準治療（COVID-19、死亡率）",
+    source: "Izcovich et al. BMJ 2023, Fig 2-5; Supplementary file 2, Example 1 (Siemieniuk et al.)",
+    direct: { effect: 0.84, ciLower: 0.64, ciUpper: 1.07, label: "OR 0.84 (0.64, 1.07)" },
+    indirect: { effect: 0.36, ciLower: 0.16, ciUpper: 0.80, label: "OR 0.36 (0.16, 0.80)" },
+    nma: { effect: 0.80, ciLower: 0.65, ciUpper: 0.94, label: "OR 0.80 (0.65, 0.94)" },
+    loop: { comparator: "IL6拮抗薬", leg1: "コルチコステロイド vs IL6拮抗薬", leg1cert: "中", leg2: "IL6拮抗薬 vs 標準治療", leg2cert: "高" },
+    baselineRisk: 0.13
+};
+
+// ===== STEPS DEFINITION =====
+const STEPS = [
+    // STEP 0: Introduction
+    {
+        id: "intro",
+        type: "intro",
+        stepClass: "step-a",
+        num: "📋",
+        title: "はじめに：例題の確認",
+        content: `
+            <div class="explain">
+                <h5>これから何をするのか？</h5>
+                <p>NMA（ネットワークメタアナリシス）の結果に対して、GRADE方式でエビデンスの確実性を評価します。</p>
+                <p class="mt-2">プロセスは<strong>A→B→C→D</strong>の4段階です。直接比較のエビデンスと間接比較のエビデンスを別々に評価し、それらを統合したNMA推定値の確実性を最終決定します。</p>
+                <p class="source">Izcovich et al. BMJ 2023;381:e074495, Fig 1</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">📊 例題データ</h4>
+            <table class="data-table">
+                <tr><th>推定値</th><th>相対効果(OR)</th><th>95%CI</th><th>絶対効果(/1000)</th></tr>
+                <tr><td><strong>直接推定値</strong></td><td>0.84</td><td>0.64 〜 1.07</td><td>-19.1 (-42.5, +7.6)</td></tr>
+                <tr><td><strong>間接推定値</strong></td><td>0.36</td><td>0.16 〜 0.80</td><td>-78.8 (-107.1, -22.8)</td></tr>
+                <tr><td><strong>NMA推定値</strong></td><td>0.80</td><td>0.65 〜 0.94</td><td>-23.5 (-40.2, -6.9)</td></tr>
+            </table>
+            <div class="warn-box">
+                <strong>💡 注目ポイント:</strong> 直接推定値(OR 0.84)のCIは1.0をまたいでいます（効果なしの可能性を含む）。一方、NMA推定値(OR 0.80)のCIは1.0を含みません。直接エビデンスだけでは不精確だったものが、間接エビデンスと統合することで精確になった例です。
+            </div>
+        `,
+        quiz: null
+    },
+
+    // STEP 1: A1 - Risk of Bias
+    {
+        id: "a1_rob",
+        type: "a1",
+        stepClass: "step-a",
+        num: "A1-1",
+        title: "Step A1（1/4）：バイアスリスク（RoB）の評価",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>直接比較に含まれる個々の研究のデザイン・実施における系統的な歪みの可能性を評価します。</p>
+                <p>各研究のRoB評価（Cochrane RoB toolで事前評価済み）と、プール推定値への寄与度（重み%）を確認します。</p>
+                <p class="source">Izcovich et al. BMJ 2023, p.3; Guyatt et al. JCE 2011;64:407-15</p>
+            </div>
+
+            <h4 class="font-bold mt-4 mb-2">判断基準</h4>
+            <table class="data-table">
+                <tr><th>条件</th><th>判定</th><th>出典</th></tr>
+                <tr><td>RoB「高」の研究の重み累積 &gt; 50%</td><td><strong class="text-red-700">Very serious (-2)</strong></td><td rowspan="3" style="font-size:0.75rem;color:#6b7280">Kamso et al. 2026 Paper 1, Table 1</td></tr>
+                <tr><td>「高」or「一部懸念」の重み累積 30-50%</td><td><strong class="text-orange-700">Serious (-1)</strong></td></tr>
+                <tr><td>上記に該当しない</td><td><strong class="text-green-700">Not serious (0)</strong></td></tr>
+            </table>
+
+            <div class="diff-box">
+                <h5>📌 文献による判断基準の違い</h5>
+                <p><strong>Kamso et al. (2026):</strong> 上記の重み累積ベースの半自動判定。99.7%の一致率。</p>
+                <p><strong>従来のGRADE:</strong> 5つの原則（重みの大きい研究に注目、保守的に判断、二重カウント注意等）に基づく定性判断。</p>
+                <p><strong>Izcovich スプレッドシート:</strong> ドメイン選択のみ（Not serious / Serious / Very serious）。自動計算なし。</p>
+                <p style="font-size:0.75rem;color:#6b7280">出典: Kamso P1 Table 1 & Appendix 2a; Guyatt JCE 2011;64:407-15; Izcovich BMJ 2023 Supp file 1</p>
+            </div>
+
+            <h4 class="font-bold mt-4 mb-2">📊 この例題では</h4>
+            <p>コルチコステロイドの直接比較試験には<strong>重大な方法論的限界</strong>がありました。</p>
+        `,
+        quiz: {
+            question: "この例題で、RoBの評価は何が適切ですか？",
+            options: [
+                { text: "Not serious (0) — 問題なし", correct: false, feedback: "不正解。例題では「重大な方法論的限界あり」と判定されています。" },
+                { text: "Serious (-1) — 深刻", correct: true, feedback: "正解！ Izcovich Fig 2で「Serious methodological limitations → Rate down one level」と判定されています。" },
+                { text: "Very serious (-2) — 非常に深刻", correct: false, feedback: "不正解。この例では-1（深刻）と判定されています。" }
+            ]
+        }
+    },
+
+    // STEP 2: A1 - Inconsistency
+    {
+        id: "a1_inc",
+        type: "a1",
+        stepClass: "step-a",
+        num: "A1-2",
+        title: "Step A1（2/4）：非一貫性（Inconsistency）",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>同一の直接比較内で、研究間に<strong>説明できない異質性（ばらつき）</strong>があるかを評価します。フォレストプロットとI²統計量を確認します。</p>
+                <p class="mt-1">注意：これはNMA特有の「非整合性(incoherence)」とは<strong>異なる概念</strong>です。非一貫性は直接比較内、非整合性は直接vs間接です。</p>
+                <p class="source">Guyatt et al. JCE 2011;64:1294-302; Kamso P1 Table 1</p>
+            </div>
+            <table class="data-table">
+                <tr><th>条件</th><th>判定</th></tr>
+                <tr><td>I² &gt; 50%</td><td class="text-orange-700 font-bold">Serious (-1)</td></tr>
+                <tr><td>I² 30-50%</td><td class="text-yellow-700 font-bold">要検討（Some concerns）</td></tr>
+                <tr><td>I² &lt; 30% or 研究1件のみ</td><td class="text-green-700 font-bold">Not serious (0)</td></tr>
+            </table>
+            <h4 class="font-bold mt-4 mb-2">📊 この例題では</h4>
+            <p>コルチコステロイドの直接比較試験間で結果は比較的一致していました。</p>
+        `,
+        quiz: {
+            question: "非一貫性の評価は？",
+            options: [
+                { text: "Not serious (0)", correct: true, feedback: "正解！ Fig 2で「No serious inconsistency → Do not rate down」です。研究間で効果の方向・大きさが一致しています。" },
+                { text: "Serious (-1)", correct: false, feedback: "不正解。この例では研究間の結果は一致していました。" }
+            ]
+        }
+    },
+
+    // STEP 3: A1 - Indirectness
+    {
+        id: "a1_ind",
+        type: "a1",
+        stepClass: "step-a",
+        num: "A1-3",
+        title: "Step A1（3/4）：非直接性（Indirectness）",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>直接エビデンスのPICO（患者・介入・比較・アウトカム）が、評価したい臨床的問い（PICO）とどの程度異なるかを評価します。</p>
+                <p class="source">Guyatt JCE 2011;64:1303-10; Kamso P1 Sec 2.3.2</p>
+            </div>
+            <div class="diff-box">
+                <h5>📌 文献による違い：非直接性 vs 非推移性</h5>
+                <p><strong>非直接性(Indirectness):</strong> ここ（A1）で評価。直接エビデンスのPICOとの不一致。</p>
+                <p><strong>非推移性(Intransitivity):</strong> Step B2で評価。間接比較を構成する直接比較間の効果修飾因子の不均衡。</p>
+                <p>両者は関連するが<strong>別概念</strong>。Kamso et al.は非直接性から非推移性を推定する方法を提案（後述）。</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">📊 この例題では</h4>
+            <p>COVID-19患者を対象とした研究であり、PICOに合致。</p>
+        `,
+        quiz: {
+            question: "非直接性の評価は？",
+            options: [
+                { text: "Not serious (0)", correct: true, feedback: "正解！ 「No serious indirectness」です。対象集団・介入・アウトカムすべて臨床的問いに合致。" },
+                { text: "Serious (-1)", correct: false, feedback: "この例ではPICOの不一致はありませんでした。" }
+            ]
+        }
+    },
+
+    // STEP 4: A1 - Publication Bias + Summary
+    {
+        id: "a1_pub",
+        type: "a1",
+        stepClass: "step-a",
+        num: "A1-4",
+        title: "Step A1（4/4）：出版バイアス & 仮確実性の算出",
+        content: `
+            <div class="explain">
+                <h5>出版バイアス</h5>
+                <p>この例題では出版バイアスは検出されませんでした（Undetected）。</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">📊 A1のまとめ：仮確実性の算出</h4>
+            <table class="data-table">
+                <tr><th>ドメイン</th><th>判定</th><th>ダウングレード</th></tr>
+                <tr><td>バイアスリスク</td><td class="text-orange-700 font-bold">Serious</td><td>-1</td></tr>
+                <tr><td>非一貫性</td><td class="text-green-700">Not serious</td><td>0</td></tr>
+                <tr><td>非直接性</td><td class="text-green-700">Not serious</td><td>0</td></tr>
+                <tr><td>出版バイアス</td><td class="text-green-700">Undetected</td><td>0</td></tr>
+                <tr><td colspan="2"><strong>合計ダウングレード</strong></td><td><strong>-1</strong></td></tr>
+            </table>
+            <div class="result-box">
+                <h5>→ 直接推定値の仮確実性（A1）: <span class="grade-badge grade-mod">中 ⊕⊕⊕◯</span></h5>
+                <p class="text-sm">高(⊕⊕⊕⊕)から1段階ダウン → 中</p>
+                <p class="text-xs text-gray-500 mt-1">注意: ここでは不精確さを評価していません。不精確さはC3で評価します。</p>
+            </div>
+            <div class="warn-box">
+                <strong>💡 なぜ不精確さを除くのか？</strong><br>
+                直接推定値が不精確でも、間接推定値と統合されたNMA推定値は精確になりうるためです。不精確さはNMA推定値レベル（C3）で評価するのが効率的です。
+                <span class="source block mt-1">Brignardello-Petersen et al. JCE 2018;93:36-44, Section 3.1</span>
+            </div>
+        `,
+        quiz: {
+            question: "A1の仮確実性は？",
+            options: [
+                { text: "高 ⊕⊕⊕⊕", correct: false, feedback: "RoBで-1されているため高ではありません。" },
+                { text: "中 ⊕⊕⊕◯", correct: true, feedback: "正解！ RoBによる1段階ダウンで、高→中。" },
+                { text: "低 ⊕⊕◯◯", correct: false, feedback: "ダウンは1段階のみなので低にはなりません。" }
+            ]
+        }
+    },
+
+    // STEP 5: B1 - Loop Selection
+    {
+        id: "b1",
+        type: "b1",
+        stepClass: "step-b",
+        num: "B1",
+        title: "Step B1：優勢一次ループの選択 & 初期確実性",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>間接推定値の確実性を評価するため、共通の比較対象（コモンコンパレータ）を介した<strong>一次ループ</strong>を特定します。</p>
+                <p class="mt-1">複数ある場合は、ネットワークプロットのノードの大きさ・線の太さ、またはCIの幅から<strong>最も優勢なもの</strong>を選びます。</p>
+                <p class="source">Izcovich BMJ 2023, p.4; Puhan BMJ 2014;349:g5630</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">📊 この例題のループ</h4>
+            <div class="bg-blue-50 p-4 rounded-lg text-center text-sm mb-3">
+                コルチコステロイド ←→ <strong class="text-blue-700">IL6拮抗薬（共通比較対象）</strong> ←→ 標準治療
+            </div>
+            <table class="data-table">
+                <tr><th>構成直接比較</th><th>A1仮確実性</th></tr>
+                <tr><td>コルチコステロイド vs IL6拮抗薬</td><td><span class="grade-badge grade-mod">中</span></td></tr>
+                <tr><td>IL6拮抗薬 vs 標準治療</td><td><span class="grade-badge grade-high">高</span></td></tr>
+            </table>
+            <div class="result-box">
+                <h5>初期確実性 = min(中, 高) = <span class="grade-badge grade-mod">中</span></h5>
+                <p class="text-sm">2つの直接比較の仮確実性のうち、低い方を採用。</p>
+            </div>
+            <div class="diff-box">
+                <h5>📌 ループ選択の方法：文献による違い</h5>
+                <p><strong>Izcovich / Puhan:</strong> ネットワークプロットの視覚的検査（ノードの大きさ、線の太さ）</p>
+                <p><strong>Kamso et al.:</strong> 寄与行列（Contribution matrix）から上位2直接比較を自動特定（90.6%一致）</p>
+                <p><strong>Brignardello-Petersen (2018):</strong> CIの幅の比較（狭い方がより寄与）</p>
+                <p><strong>Yao et al. (2026):</strong> 優勢一次ループのみ vs 全ループ考慮 → 94%で同結果</p>
+                <p class="source">Kamso P2 Sec 2.2.1, Sec 3.1.2; Yao JCE 2026;189:112050</p>
+            </div>
+        `,
+        quiz: {
+            question: "B1の初期確実性は？",
+            options: [
+                { text: "高（IL6拮抗薬 vs SOCの確実性）", correct: false, feedback: "高い方ではなく、低い方を採用します。" },
+                { text: "中（2つのうち低い方）", correct: true, feedback: "正解！ min(中, 高) = 中です。" }
+            ]
+        }
+    },
+
+    // STEP 6: B2 - Intransitivity
+    {
+        id: "b2",
+        type: "b2",
+        stepClass: "step-b",
+        num: "B2",
+        title: "Step B2：非推移性（Intransitivity）の評価",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>ループを構成する2つの直接比較間で、<strong>効果修飾因子</strong>（患者年齢、重症度、共介入等）の分布に系統的な差がないか確認します。</p>
+                <p class="source">Izcovich BMJ 2023, p.4; Brignardello-Petersen JCE 2019;108:77-85 Sec 5</p>
+            </div>
+            <div class="diff-box">
+                <h5>📌 非推移性評価の方法：3つの主要アプローチ</h5>
+                <p><strong>①Izcovich方式（標準GRADE）:</strong> チェックリストやICEMANツールで手動評価。スプレッドシートでは自動化未実装。</p>
+                <p><strong>②Kamso方式（新提案）:</strong> A1の非直接性評価から推定。どちらかSeriousなら非推移性もSerious(-1)。二重カウントのリスクあり。</p>
+                <p><strong>③GRADE指針:</strong> 非整合性と非推移性で二重ダウン回避を推奨。ただし実践上の判断は困難。</p>
+                <p class="source">Kamso P2 Sec 2.2.2 Fig 2; Izcovich BMJ 2023 p.4; Brignardello-Petersen JCE 2023;160:151-9</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">📊 この例題では</h4>
+            <p>ループを構成する試験間で、患者集団・介入方法に重大な差異はなし。</p>
+            <div class="result-box">
+                <h5>非推移性: Not serious (0)</h5>
+                <h5>→ 間接推定値の仮確実性（B2）: <span class="grade-badge grade-mod">中 ⊕⊕⊕◯</span></h5>
+                <p class="text-sm">B1の初期確実性(中) + 非推移性(0) = 中</p>
+            </div>
+        `,
+        quiz: {
+            question: "B2の間接仮確実性は？",
+            options: [
+                { text: "中 ⊕⊕⊕◯", correct: true, feedback: "正解！ 初期確実性(中) + 非推移性(0) = 中。ダウンなし。" },
+                { text: "低 ⊕⊕◯◯", correct: false, feedback: "非推移性でダウンしていないので、初期確実性の中のままです。" }
+            ]
+        }
+    },
+
+    // STEP 7: C1 - Starting Point
+    {
+        id: "c1",
+        type: "c1",
+        stepClass: "step-c",
+        num: "C1",
+        title: "Step C1：NMA確実性の出発点の決定",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>NMA推定値の確実性の出発点を、直接と間接の仮確実性（不精確さ除く）から決定します。</p>
+                <p class="source">Izcovich BMJ 2023, p.5-6; Supp file 3 (15 scenarios)</p>
+            </div>
+            <table class="data-table">
+                <tr><th>推定値</th><th>仮確実性</th><th>CIの幅</th></tr>
+                <tr><td>直接</td><td><span class="grade-badge grade-mod">中</span></td><td>0.64-1.07 (幅0.43)</td></tr>
+                <tr><td>間接</td><td><span class="grade-badge grade-mod">中</span></td><td>0.16-0.80 (幅0.64)</td></tr>
+            </table>
+            <p class="mt-3 text-sm">直接のCIが間接のCIより狭い → <strong>直接が支配的</strong></p>
+            <div class="result-box">
+                <h5>出発点: <span class="grade-badge grade-mod">中</span>（直接の仮確実性に基づく）</h5>
+                <p class="text-sm">15シナリオの<strong>S14</strong>に該当（直接=間接の確実性、直接を選択）</p>
+            </div>
+        `,
+        quiz: {
+            question: "C1の出発点は？",
+            options: [
+                { text: "高", correct: false, feedback: "直接も間接も仮確実性は「中」です。" },
+                { text: "中（直接に基づく）", correct: true, feedback: "正解！ 直接と間接が同じ「中」で、直接が支配的なのでS14→直接を選択。" },
+                { text: "低", correct: false, feedback: "両方「中」なので低にはなりません。" }
+            ]
+        }
+    },
+
+    // STEP 8: C2 - Incoherence
+    {
+        id: "c2",
+        type: "c2",
+        stepClass: "step-c",
+        num: "C2",
+        title: "Step C2：非整合性（Incoherence）の評価",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>直接推定値(OR 0.84)と間接推定値(OR 0.36)が、偶然を超えて異なるかを評価します。</p>
+                <p class="source">Brignardello-Petersen JCE 2019;108:77-85; Izcovich BMJ 2023, p.6</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">評価の3要素</h4>
+            <table class="data-table">
+                <tr><th>要素</th><th>この例題</th></tr>
+                <tr><td>①点推定値の差</td><td>0.84 vs 0.36 → 差はあるが...</td></tr>
+                <tr><td>②CIの重複</td><td>直接(0.64-1.07)と間接(0.16-0.80) → 重複あり(0.64-0.80)</td></tr>
+                <tr><td>③直接が支配的か</td><td>直接のCIが狭い → NMA推定値(0.80)は直接に近い</td></tr>
+            </table>
+            <div class="warn-box">
+                <strong>💡 ポイント:</strong> 直接と間接の点推定値に差がありますが、直接が支配的であるため、NMA推定値(0.80)は直接推定値(0.84)に近いです。一方が支配的な場合、非整合性のNMA推定値への影響は小さくなります。
+            </div>
+            <div class="result-box">
+                <h5>非整合性: Not serious (0)</h5>
+                <h5>→ NMA仮確実性: <span class="grade-badge grade-mod">中</span> (出発点:中 + 非整合性:0)</h5>
+            </div>
+        `,
+        quiz: {
+            question: "C2の判定は？",
+            options: [
+                { text: "Not serious (0)", correct: true, feedback: "正解！ 直接が支配的でNMA推定値に近く、ダウン不要。" },
+                { text: "Serious (-1)", correct: false, feedback: "点推定値に差はありますが、直接が支配的なため影響は小さいです。" }
+            ]
+        }
+    },
+
+    // STEP 9: C3 - Imprecision
+    {
+        id: "c3",
+        type: "c3",
+        stepClass: "step-c",
+        num: "C3",
+        title: "Step C3：NMA推定値の不精確さ",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>NMA推定値のCI(0.65-0.94)が臨床的閾値をまたぐかどうかを確認します。</p>
+                <p class="source">Brignardello-Petersen et al. JCE 2021;139:49-56 (GRADE guidelines 33)</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">3ステップ評価</h4>
+            <table class="data-table">
+                <tr><th>ステップ</th><th>確認内容</th><th>結果</th></tr>
+                <tr><td>① CIが閾値をまたぐか</td><td>OR 0.65-0.94 → 1.0を含まない</td><td class="text-green-700 font-bold">またがない ✓</td></tr>
+                <tr><td>② 効果の大きさ</td><td>OR 0.80 → 20%のリスク減少 → 中程度</td><td class="text-green-700 font-bold">中程度 ✓</td></tr>
+                <tr><td>③ OIS（CI比）</td><td>0.94/0.65 = 1.45 → 3未満</td><td class="text-green-700 font-bold">OIS充足 ✓</td></tr>
+            </table>
+            <div class="result-box">
+                <h5>不精確さ: Not serious (0)</h5>
+                <h5>→ NMA最終確実性: <span class="grade-badge grade-mod">中 ⊕⊕⊕◯</span></h5>
+            </div>
+            <div class="warn-box">
+                <strong>💡 比較:</strong> 直接推定値のCI(0.64-1.07)は1.0をまたいでいたので、直接推定値だけなら不精確さで-1ダウン → 低(⊕⊕◯◯)でした。NMAにより精確性が向上した例です。
+            </div>
+        `,
+        quiz: {
+            question: "C3の判定と最終NMA確実性は？",
+            options: [
+                { text: "Not serious → NMA確実性: 中", correct: true, feedback: "正解！ CIが1.0を含まず、CI比も良好。出発点の中のまま。" },
+                { text: "Serious → NMA確実性: 低", correct: false, feedback: "CIは1.0を含んでおらず、不精確さの懸念はありません。" }
+            ]
+        }
+    },
+
+    // STEP 10: D - Best Estimate
+    {
+        id: "d",
+        type: "d",
+        stepClass: "step-d",
+        num: "D",
+        title: "Step D：最良推定値の選択",
+        content: `
+            <div class="explain">
+                <h5>何をするのか？</h5>
+                <p>直接・間接・NMAの3つの推定値から、<strong>最も確実性の高い推定値</strong>を最良推定値として選択します。</p>
+                <p class="source">Izcovich BMJ 2023, p.6-7; Brignardello-Petersen JCE 2019;108:77-85, Sec 8</p>
+            </div>
+            <h4 class="font-bold mt-4 mb-2">3つの推定値の比較</h4>
+            <table class="data-table">
+                <tr><th>推定値</th><th>効果量</th><th>最終確実性</th></tr>
+                <tr><td>直接（A2実施時）</td><td>OR 0.84 (0.64, 1.07)</td><td><span class="grade-badge grade-low">低</span> ※不精確さ-1あり</td></tr>
+                <tr><td>間接（B3実施時）</td><td>OR 0.36 (0.16, 0.80)</td><td><span class="grade-badge grade-vlow">非常に低</span> ※不精確さ-2あり</td></tr>
+                <tr><td><strong>NMA</strong></td><td>OR 0.80 (0.65, 0.94)</td><td><span class="grade-badge grade-mod">中 ⊕⊕⊕◯</span></td></tr>
+            </table>
+            <div class="result-box">
+                <h5>🏆 最良推定値: NMA推定値（OR 0.80, 95%CI 0.65-0.94）</h5>
+                <h5>最終確実性: <span class="grade-badge grade-mod">中 ⊕⊕⊕◯</span></h5>
+                <p class="text-sm">理由: 非整合性なし + NMA推定値が最も精確 → NMAを採用</p>
+            </div>
+            <div class="warn-box">
+                <strong>💡 重要:</strong> この例では直接推定値(低)や間接推定値(非常に低)よりもNMA推定値(中)の方が高い確実性です。しかし、<strong>常にNMAが最良とは限りません</strong>。例4（ステロイド鼻スプレー vs プラセボ）では、非整合性のためにNMA確実性が低下し、直接推定値の方が高い確実性でした。
+                <span class="source block mt-1">Izcovich BMJ 2023 Supp file 2, Example 4 (Bognanni et al. JACI 2022)</span>
+            </div>
+        `,
+        quiz: {
+            question: "最終的に採用する推定値は？",
+            options: [
+                { text: "直接推定値（OR 0.84）", correct: false, feedback: "直接は不精確さで確実性が低下(低)しており、NMAの方が高確実性です。" },
+                { text: "NMA推定値（OR 0.80）— 確実性: 中", correct: true, feedback: "正解！ 非整合性なし + NMAが最も精確 → NMA推定値を最良推定値として採用。" },
+                { text: "間接推定値（OR 0.36）", correct: false, feedback: "間接は最も不精確で、確実性は非常に低です。" }
+            ]
+        }
+    }
+];
+
+// ===== NAVIGATION STATE =====
+let currentStep = 0;
+const stepNames = STEPS.map(s => s.num);
+
+function updateNav() {
+    const flow = document.getElementById('navFlow');
+    flow.innerHTML = STEPS.map((s, i) => {
+        const cls = i < currentStep ? 'done' : i === currentStep ? 'current' : 'future';
+        const arrow = i < STEPS.length - 1 ? '<span class="flow-arrow">→</span>' : '';
+        return `<span class="flow-item ${cls}" onclick="goToStep(${i})">${s.num}</span>${arrow}`;
+    }).join('');
+    document.getElementById('progressFill').style.width = `${(currentStep / (STEPS.length - 1)) * 100}%`;
+}
+
+function goToStep(idx) {
+    currentStep = idx;
+    renderSteps();
+    updateNav();
+    // Scroll to current step
+    const el = document.getElementById(`step-${idx}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSteps() {
+    const container = document.getElementById('stepsContainer');
+    container.innerHTML = STEPS.map((step, idx) => {
+        const isActive = idx <= currentStep;
+        const isCurrent = idx === currentStep;
+        return `
+            <div class="step-card ${step.stepClass}" id="step-${idx}" style="${!isActive ? 'opacity:0.4;pointer-events:none;' : ''}">
+                <div class="step-header" onclick="toggleStep(${idx})">
+                    <div class="step-num">${step.num}</div>
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">${step.title}</div>
+                        ${idx < currentStep ? '<span class="text-green-600 text-xs font-bold">✅ 完了</span>' : ''}
+                    </div>
+                    <span class="text-gray-400">${isCurrent ? '▼' : '▶'}</span>
+                </div>
+                <div class="step-body ${isCurrent ? 'active' : ''}" id="body-${idx}">
+                    ${step.content}
+                    ${step.quiz ? renderQuiz(idx, step.quiz) : ''}
+                    ${idx < STEPS.length - 1 ? `<button class="next-btn" id="nextBtn-${idx}" onclick="advanceStep(${idx + 1})">次のステップへ →</button>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Show "next" button for non-quiz steps
+    STEPS.forEach((s, i) => {
+        if (!s.quiz && i <= currentStep) {
+            const btn = document.getElementById(`nextBtn-${i}`);
+            if (btn) btn.classList.add('show');
+        }
+    });
+
+    // Show completion
+    if (currentStep >= STEPS.length - 1) {
+        document.getElementById('transitionSection').style.display = 'block';
+        saveTutorialDataToStorage();
+        saveTutorialDataToStorage();
+    }
+}
+
+function toggleStep(idx) {
+    const body = document.getElementById(`body-${idx}`);
+    if (body) body.classList.toggle('active');
+}
+
+function renderQuiz(stepIdx, quiz) {
+    return `
+        <div class="action-area">
+            <h5>🧪 確認クイズ: ${quiz.question}</h5>
+            <div class="flex flex-wrap gap-2 mt-2">
+                ${quiz.options.map((opt, oi) => `
+                    <button class="quiz-btn bg-white" id="qbtn-${stepIdx}-${oi}" onclick="checkAnswer(${stepIdx},${oi},${opt.correct})">${opt.text}</button>
+                `).join('')}
+            </div>
+            <div class="feedback" id="feedback-${stepIdx}"></div>
+        </div>
+    `;
+}
+
+function checkAnswer(stepIdx, optIdx, correct) {
+    const quiz = STEPS[stepIdx].quiz;
+    const fb = document.getElementById(`feedback-${stepIdx}`);
+
+    // Reset all buttons
+    quiz.options.forEach((_, i) => {
+        const btn = document.getElementById(`qbtn-${stepIdx}-${i}`);
+        btn.className = 'quiz-btn bg-white';
+    });
+
+    // Mark selected
+    const selected = document.getElementById(`qbtn-${stepIdx}-${optIdx}`);
+    selected.classList.add(correct ? 'correct' : 'wrong');
+
+    // Show feedback
+    fb.textContent = quiz.options[optIdx].feedback;
+    fb.className = `feedback show ${correct ? 'ok' : 'ng'}`;
+
+    // Show next button if correct
+    if (correct) {
+        const nextBtn = document.getElementById(`nextBtn-${stepIdx}`);
+        if (nextBtn) nextBtn.classList.add('show');
+    }
+}
+
+function advanceStep(nextIdx) {
+    currentStep = nextIdx;
+    renderSteps();
+    updateNav();
+    setTimeout(() => {
+        const el = document.getElementById(`step-${nextIdx}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+
+// ===== TUTORIAL COMPLETION: Save to localStorage for tool.html =====
+function saveTutorialDataToStorage() {
+    var data = {
+        settings: {
+            projectName: "COVID-19 NMA Tutorial (Izcovich BMJ 2023)",
+            outcomeName: "死亡率", referenceTreatment: "標準治療",
+            outcomeType: "dichotomous", updateRound: 1
+        },
+        comparisons: {
+            "コルチコステロイド vs 標準治療": {
+                treat1: "コルチコステロイド", treat2: "標準治療",
+                direct:   { effect: 0.84, ciLower: 0.64, ciUpper: 1.07 },
+                indirect: { effect: 0.36, ciLower: 0.16, ciUpper: 0.80 },
+                nma:      { effect: 0.80, ciLower: 0.65, ciUpper: 0.94,
+                            treat1: "コルチコステロイド", treat2: "標準治療" }
+            }
+        },
+        treatmentNames: {
+            "コルチコステロイド": "コルチコステロイド",
+            "標準治療": "標準治療",
+            "IL6拮抗薬": "IL6拮抗薬"
+        },
+        rawStats: {}, transitivity: "", directAssessments: {},
+        indirectAssessments: {}, nmaAssessments: {}, finalAssessments: {},
+        previousAssessments: null
+    };
+    localStorage.setItem('nmaGradeTutorialData', JSON.stringify(data));
+}
+
+// ===== TUTORIAL COMPLETION: Save to localStorage for tool.html =====
+function saveTutorialDataToStorage() {
+    var data = {
+        settings: {
+            projectName: "COVID-19 NMA Tutorial (Izcovich BMJ 2023)",
+            outcomeName: "死亡率", referenceTreatment: "標準治療",
+            outcomeType: "dichotomous", updateRound: 1
+        },
+        comparisons: {
+            "コルチコステロイド vs 標準治療": {
+                treat1: "コルチコステロイド", treat2: "標準治療",
+                direct:   { effect: 0.84, ciLower: 0.64, ciUpper: 1.07 },
+                indirect: { effect: 0.36, ciLower: 0.16, ciUpper: 0.80 },
+                nma:      { effect: 0.80, ciLower: 0.65, ciUpper: 0.94,
+                            treat1: "コルチコステロイド", treat2: "標準治療" }
+            }
+        },
+        treatmentNames: {
+            "コルチコステロイド": "コルチコステロイド",
+            "標準治療": "標準治療",
+            "IL6拮抗薬": "IL6拮抗薬"
+        },
+        rawStats: {}, transitivity: "", directAssessments: {},
+        indirectAssessments: {}, nmaAssessments: {}, finalAssessments: {},
+        previousAssessments: null
+    };
+    localStorage.setItem('nmaGradeTutorialData', JSON.stringify(data));
+}
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+    updateNav();
+    renderSteps();
+});
+</script>
+</body>
+</html>

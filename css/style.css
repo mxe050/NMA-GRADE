@@ -1,0 +1,118 @@
+/* ============================================================
+   NMA GRADE Tool - Shared Styles v1.0
+   共通スタイル: tutorial.html / tool.html / reference.html
+   ============================================================ */
+
+/* === Grade Badge Colors === */
+.grade-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.78rem;
+}
+.grade-high    { background: #d4edda; color: #155724; }
+.grade-moderate,
+.grade-mod     { background: #fff3cd; color: #856404; }
+.grade-low     { background: #f8d7da; color: #721c24; }
+.grade-very-low,
+.grade-vlow    { background: #f5c6cb; color: #721c24; }
+
+/* tool.html border variants */
+.assessment-table .grade-high    { border: 1px solid #c3e6cb; }
+.assessment-table .grade-moderate{ border: 1px solid #ffeeba; }
+.assessment-table .grade-low     { border: 1px solid #f5c6cb; }
+.assessment-table .grade-very-low{ border: 1px solid #e0a800; }
+
+/* === Certainty Badge (tool.html) === */
+.certainty-badge {
+    min-width: 58px;
+    text-align: center;
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+/* === Source Literature Tags (reference.html, tutorial diff-boxes) === */
+.src-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; margin: 1px; }
+.src-izc { background: #dbeafe; color: #1e40af; }
+.src-kam { background: #fce7f3; color: #9d174d; }
+.src-brg { background: #d1fae5; color: #065f46; }
+.src-puh { background: #fef3c7; color: #92400e; }
+.src-yao { background: #ede9fe; color: #5b21b6; }
+
+/* === Page Navigation Bar (all pages) === */
+.page-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0 10px;
+}
+.page-nav a {
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    font-size: 0.75rem;
+    padding: 5px 11px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.2s;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.25);
+}
+.page-nav a:hover { background: rgba(255,255,255,0.32); }
+.page-nav a.current { background: rgba(255,255,255,0.40); font-weight: 700; }
+
+/* === Reference Popup Button (tool.html → reference.html) === */
+.ref-popup-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #7c3aed;
+    background: #ede9fe;
+    border: 1px solid #c4b5fd;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+    vertical-align: middle;
+}
+.ref-popup-btn:hover { background: #ddd6fe; }
+
+/* === Tutorial Import Banner (tool.html) === */
+.tutorial-import-banner {
+    background: #ecfdf5;
+    border: 1px solid #6ee7b7;
+    border-left: 4px solid #10b981;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.tutorial-import-banner button {
+    background: #10b981;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 5px;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.tutorial-import-banner .dismiss { background: #6b7280; }
+
+@media print {
+    .page-nav,
+    .ref-popup-btn,
+    .tutorial-import-banner { display: none !important; }
+}

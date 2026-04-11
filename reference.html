@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMA GRADE 文献差異リファレンス辞書</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f8fafc;min-height:100vh;}
+        .hero{background:linear-gradient(135deg,#7c3aed 0%,#4f46e5 100%);color:white;padding:28px;border-radius:0 0 20px 20px;}
+        .ref-card{background:white;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:16px;overflow:hidden;}
+        .ref-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f1f5f9;}
+        .ref-header:hover{background:#f8fafc;}
+        .ref-body{padding:0 18px 18px;display:none;}
+        .ref-body.active{display:block;}
+        .comp-table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:10px 0;}
+        .comp-table th{background:#f1f5f9;padding:6px 10px;text-align:left;font-size:0.73rem;border:1px solid #e2e8f0;white-space:nowrap;}
+        .comp-table td{padding:6px 10px;border:1px solid #e2e8f0;vertical-align:top;}
+        .comp-table tr:nth-child(even){background:#fafbfc;}
+        .src-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;margin:1px;}
+        .src-izc{background:#dbeafe;color:#1e40af;}
+        .src-kam{background:#fce7f3;color:#9d174d;}
+        .src-brg{background:#d1fae5;color:#065f46;}
+        .src-puh{background:#fef3c7;color:#92400e;}
+        .src-yao{background:#ede9fe;color:#5b21b6;}
+        .recommend{background:#ecfdf5;border-left:4px solid #10b981;padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0;font-size:0.82rem;}
+        .recommend h5{color:#065f46;font-weight:700;margin-bottom:3px;}
+        .caution{background:#fefce8;border-left:4px solid #eab308;padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0;font-size:0.82rem;}
+        .caution h5{color:#92400e;font-weight:700;margin-bottom:3px;}
+        .choice-box{background:#f0f9ff;border:2px solid #93c5fd;border-radius:8px;padding:14px;margin:10px 0;}
+        .choice-box h5{color:#1e40af;font-weight:700;margin-bottom:6px;}
+        .choice-radio{display:flex;gap:8px;flex-wrap:wrap;}
+        .choice-radio label{padding:6px 14px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;}
+        .choice-radio label:hover{border-color:#93c5fd;background:#f0f9ff;}
+        .choice-radio input:checked+span{font-weight:700;}
+        .choice-radio label:has(input:checked){border-color:#3b82f6;background:#dbeafe;}
+        .step-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:0.68rem;font-weight:700;}
+        .step-a{background:#dbeafe;color:#1e40af;}
+        .step-b{background:#fce7f3;color:#9d174d;}
+        .step-c{background:#d1fae5;color:#065f46;}
+        .step-d{background:#fef3c7;color:#92400e;}
+        .toc-item{padding:6px 12px;border-radius:6px;font-size:0.82rem;cursor:pointer;transition:all 0.2s;display:block;margin-bottom:4px;}
+        .toc-item:hover{background:#e2e8f0;}
+        .print-btn{background:#6b7280;color:white;padding:6px 16px;border-radius:6px;font-size:0.82rem;cursor:pointer;border:none;}
+        @media print{.no-print{display:none!important;}.ref-body{display:block!important;}}
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="page-nav">
+            <a href="index.html">&#127968; ホーム</a>
+            <a href="tool.html">&#128295; 評価ツールに戻る</a>
+            <a href="tutorial.html">&#127891; チュートリアル</a>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">📚 NMA GRADE 文献差異リファレンス辞書</h1>
+        <p class="text-white/90 text-sm mb-2">各ステップの判断基準について、主要5文献のアプローチの違いを比較。どの方式を採用するか選択できます。</p>
+        <div class="flex flex-wrap gap-2 mt-3">
+            <span class="src-tag src-izc">Izcovich BMJ 2023</span>
+            <span class="src-tag src-kam">Kamso JCE 2026 P1&P2</span>
+            <span class="src-tag src-brg">Brignardello-Petersen JCE 2018/2019/2021</span>
+            <span class="src-tag src-puh">Puhan BMJ 2014</span>
+            <span class="src-tag src-yao">Yao JCE 2026</span>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto p-4 flex gap-4">
+        <!-- TOC -->
+        <div class="w-56 flex-shrink-0 no-print" id="toc">
+            <div class="sticky top-4 bg-white rounded-lg shadow p-3">
+                <h3 class="font-bold text-sm mb-2">📑 目次</h3>
+                <div id="tocList"></div>
+                <button class="print-btn mt-3 w-full" onclick="window.print()">🖨️ 印刷</button>
+                <button class="print-btn mt-2 w-full" onclick="exportChoices()">💾 選択を保存</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1" id="mainContent"></div>
+    </div>
+
+<script>
+// ===== REFERENCE SECTIONS =====
+const SECTIONS = [
+{
+    id:"rob", step:"A1", stepClass:"step-a",
+    title:"バイアスリスク（Risk of Bias）",
+    comparisons:[
+        {aspect:"判定方法",
+         izc:"4ドメインの1つとして手動評価（Not serious / Serious / Very serious）。スプレッドシートに入力。",
+         kam:"研究レベルRoB評価(Cochrane RoB tool) + 重み累積ベースの半自動判定。R Shinyツール(SEADEN)でフォレストプロットと共に表示。",
+         brg:"標準GRADE方式。5つの修正判断原則を適用。",
+         puh:"標準GRADE方式。ネットワーク全体ではなく比較レベルで評価すべきと強調。"},
+        {aspect:"閾値",
+         izc:"明確な数値閾値なし。評価者の判断。",
+         kam:"高RoB重み>50%→-2, 高/一部懸念30-50%→-1, 一部懸念>50%→Some concerns（フラグ）",
+         brg:"数値閾値なし。GRADE原則に基づく定性判断。",
+         puh:"数値閾値なし。"},
+        {aspect:"自動化",
+         izc:"仮確実性の自動算出のみ（4ドメイン入力後）",
+         kam:"重み累積からの自動判定 + 手動オーバーライド可。99.7%の一致率。",
+         brg:"自動化の言及なし",
+         puh:"自動化の言及なし"}
+    ],
+    recommendation:"大規模NMA（比較数が多い）ではKamso方式の半自動判定が効率的。ただし最終判断は常に専門家が確認すべき。",
+    caution:"Kamso方式はRA治療NMAで開発・検証されたもの。他の領域では閾値の調整が必要な場合がある。"
+},
+{
+    id:"inconsistency", step:"A1", stepClass:"step-a",
+    title:"非一貫性（Inconsistency）",
+    comparisons:[
+        {aspect:"主要指標",
+         izc:"フォレストプロットの視覚的確認",
+         kam:"I²統計量（Cochrane Handbookの閾値）+ τ² + フォレストプロット",
+         brg:"標準GRADE方式（点推定値のばらつき、CI重複、χ²検定）",
+         puh:"標準GRADE方式"},
+        {aspect:"閾値",
+         izc:"明確な数値なし",
+         kam:"I²>50%→Serious(-1), 30-50%→Some concerns",
+         brg:"具体的数値なし（臨床的文脈を考慮）",
+         puh:"具体的数値なし"},
+        {aspect:"研究1件の場合",
+         izc:"言及なし（暗黙的に不要）",
+         kam:"自動的にNot serious（評価不要）。100%一致。",
+         brg:"言及なし",
+         puh:"言及なし"}
+    ],
+    recommendation:"I²は有用だが万能ではない。大規模研究では小さな差でも大きなI²が出る。Kamso閾値を出発点とし、フォレストプロットで臨床的意味を確認する。",
+    caution:"I²のみに頼らず、予測区間（5研究以上の場合）も確認すべき。τ²の絶対値も重要。"
+},
+{
+    id:"indirectness", step:"A1", stepClass:"step-a",
+    title:"非直接性（Indirectness）",
+    comparisons:[
+        {aspect:"評価レベル",
+         izc:"比較レベルで一括評価（標準GRADE）",
+         kam:"研究レベルで個別評価（CINeMAから借用）→ 重み付けで比較レベルに統合",
+         brg:"比較レベル（標準GRADE）",
+         puh:"比較レベル"},
+        {aspect:"研究レベル評価",
+         izc:"なし",
+         kam:"あり。各研究のPICO特性をWebアプリで表示し、no concerns/some concerns/highの3段階で評価。",
+         brg:"なし",
+         puh:"なし"},
+        {aspect:"効果修飾との関連",
+         izc:"効果修飾因子の信頼性が高い場合にダウン",
+         kam:"メタ回帰で検出された効果修飾因子を参照（例：MTX用量、罹病期間）。ただし検出力の限界を認識。",
+         brg:"効果修飾の確信がある場合のみダウン。慎重な判断を推奨。",
+         puh:"差異がある場合にダウン検討"}
+    ],
+    recommendation:"Kamso方式の研究レベル評価は透明性が高い。レビュー固有のルール（例：罹病期間>5年→high concerns）を事前に設定すると再現性が向上する。",
+    caution:"非直接性はStep B2の非推移性と関連するが別概念。非直接性=直接エビデンスとPICOの不一致、非推移性=間接比較の構成直接比較間の効果修飾因子の不均衡。"
+},
+{
+    id:"pubbias", step:"A1", stepClass:"step-a",
+    title:"出版バイアス（Publication Bias）",
+    comparisons:[
+        {aspect:"評価方法",
+         izc:"ファンネルプロット（作成可能な場合）+ 臨床試験登録との照合",
+         kam:"外部評価。SEADENアプリには含まれない。自動化なし。",
+         brg:"標準GRADE（ファンネルプロット、10研究以上推奨）",
+         puh:"標準GRADE"},
+        {aspect:"NMAでの注意",
+         izc:"NMAでは正式な評価が困難な場合が多い",
+         kam:"研究数が少ないため多くの比較でファンネルプロット作成不可",
+         brg:"同様の限界を認識",
+         puh:"同様"}
+    ],
+    recommendation:"多くのNMAでは研究数の制約から正式評価が困難。臨床試験登録データベースとの照合を優先し、未発表試験の有無を確認する。",
+    caution:"「Undetected」は「バイアスがない」ではなく「検出されなかった」の意味。"
+},
+{
+    id:"loop", step:"B1", stepClass:"step-b",
+    title:"優勢ループの選択",
+    comparisons:[
+        {aspect:"選択方法",
+         izc:"ネットワークプロットの視覚的検査（ノードの大きさ、線の太さ）",
+         kam:"寄与行列（Contribution matrix）から上位2直接比較を自動特定",
+         brg:"CIの幅の比較（狭い方がより寄与）。寄与行列も使用可（頻度論のみ）。",
+         puh:"ネットワーク図から一次ループを特定"},
+        {aspect:"一次ループがない場合",
+         izc:"二次ループ（2つの中間ノード）を探す",
+         kam:"寄与行列で自動的に最も寄与する2直接比較を特定（ループ次数に依存しない）",
+         brg:"高次ループへ",
+         puh:"高次ループへ"},
+        {aspect:"上位2比較の寄与率",
+         izc:"定量的基準なし",
+         kam:"50%以上=62%の推定値で該当。50%未満=38%で、代表性に懸念。",
+         brg:"定量的基準なし",
+         puh:"定量的基準なし"}
+    ],
+    recommendation:"Kamso方式（寄与行列）は客観的で再現性が高いが、頻度論的NMAの寄与行列をベイジアンNMAの近似として使用する点に留意。Izcovich方式（視覚的検査）はすべてのフレームワークで使用可能。",
+    caution:"Yao et al. (2026)は、優勢一次ループのみ vs 全ループ考慮で94%が同結果であることを示した。ただし一次ループの寄与が50%未満の場合は慎重に。"
+},
+{
+    id:"intransitivity", step:"B2", stepClass:"step-b",
+    title:"非推移性（Intransitivity）",
+    comparisons:[
+        {aspect:"評価方法",
+         izc:"チェックリストまたはICEMANツールで手動評価。スプレッドシートでは自動化未実装。「GRADE WGはまだ公式詳細ガイダンスを提供していない」。",
+         kam:"非直接性評価から推定する新アプローチ。どちらかの直接比較がSeriousなら非推移性もSerious。",
+         brg:"2023年のconcept article (JCE 2023;160:151-9)で詳細ガイダンス。効果修飾因子の信頼性評価を推奨。",
+         puh:"効果修飾因子の不均衡がある場合にダウン。定性的判断。"},
+        {aspect:"二重カウント問題",
+         izc:"明示的言及なし",
+         kam:"認識しつつも保守的にダウンする方針。「二重カウントの影響は実際にはわずか」（25件中22件でvery low/extremely lowだった）。",
+         brg:"非整合性と非推移性の両方でダウンすべきでない場合がある（2019, Sec 5）。ただし判断は困難。",
+         puh:"言及なし"}
+    ],
+    recommendation:"現時点で最も体系的なのはKamso方式だが、「非直接性から非推移性を推定」は近似であり、さらなる検証が必要。可能であればICEMANツールの使用を推奨。",
+    caution:"二重カウント：同じ理由で非直接性(A1)と非推移性(B2)の両方でダウンしないよう注意。Kamso et al.は保守的に両方ダウンしたが、実際の影響は多くの場合わずかだった。"
+},
+{
+    id:"startpoint", step:"C1", stepClass:"step-c",
+    title:"出発点の決定",
+    comparisons:[
+        {aspect:"アルゴリズム",
+         izc:"Supplementary file 3に15シナリオの完全アルゴリズム。「適切な情報量」「支配的」の判断を含む。",
+         kam:"寄与行列で数値化。>60%=支配的、40-60%=同程度。同程度の場合は高い方の仮確実性。",
+         brg:"CIの幅の比較で支配性を判断。高い方の仮確実性を出発点に。",
+         puh:"「高い方の確実性を使用」（初期ガイダンス）。"},
+        {aspect:"「適切」の判定",
+         izc:"二値: OIS基準、連続: 各群400以上",
+         kam:"寄与率（%）で判定",
+         brg:"具体的基準なし",
+         puh:"具体的基準なし"},
+        {aspect:"「支配的」の判定",
+         izc:"CIの幅、NMA推定値がどちらに近いか",
+         kam:">60%の寄与率",
+         brg:"CIの幅（狭い方が支配的）",
+         puh:"定性的判断"}
+    ],
+    recommendation:"15シナリオアルゴリズム（Izcovich方式）が最も包括的。Kamso方式の数値基準(60%/40%)は運用が明確。両者を組み合わせ、まず寄与率で判定し、不明確な場合はCIの幅で補完するのが実用的。",
+    caution:"寄与行列は頻度論的NMAでのみ直接計算可能。ベイジアンNMAでは近似として使用（Kamso P2）。"
+},
+{
+    id:"incoherence", step:"C2", stepClass:"step-c",
+    title:"非整合性（Incoherence）",
+    comparisons:[
+        {aspect:"評価要素",
+         izc:"点推定値の差、CI重複、統計検定",
+         kam:"ノード分割p値 + 寄与率による5段階判定表",
+         brg:"3段階プロセス: ①存在するか ②両方が重要寄与か ③原因特定（2019論文）",
+         puh:"直接vs間接の差の大きさ、統計的有意性"},
+        {aspect:"グローバル検定",
+         izc:"言及なし（個別比較での評価を前提）",
+         kam:"使用せず（個別比較のノード分割を使用）",
+         brg:"「信頼すべきでない」。40NMA中3つでグローバル非有意だが局所非整合性検出（2018, Sec 3.3）。",
+         puh:"Lu and Adesモデル等を紹介。ただし限界を認識。"},
+        {aspect:"閾値",
+         izc:"明確な数値なし",
+         kam:"同程度(40-60%)+p<0.05→Serious, p=0.05-0.20→Some concerns, 支配的(>60%)+p<0.05→Some concerns",
+         brg:"数値閾値なし。臨床的文脈と統計の両面で判断。",
+         puh:"数値閾値なし"}
+    ],
+    recommendation:"Kamso方式の5段階判定は客観的で再現性が高い。ただしp値のみに頼らず、Brignardello-Petersen (2019)の3段階プロセスで臨床的判断を加えることが重要。",
+    caution:"グローバル検定の非有意→局所的非整合性なし、と結論づけるのは危険。必ず個別比較レベルで評価すること。"
+},
+{
+    id:"imprecision", step:"C3", stepClass:"step-c",
+    title:"不精確さ（Imprecision）",
+    comparisons:[
+        {aspect:"評価フレームワーク",
+         izc:"スプレッドシートで閾値（Small/Large per 1000）を設定し自動判定",
+         kam:"最小文脈化フレームワーク。絶対効果の閾値を設定（ACR50: 5%/20%等）。Webツールで調整可。",
+         brg:"GRADE guidelines 33: 3ステップ（CI×閾値→効果の大きさ→OIS）",
+         puh:"標準GRADE"},
+        {aspect:"OIS（最適情報量）",
+         izc:"スプレッドシートが自動判定（閾値設定時）",
+         kam:"実装予定だが現時点では未実装。CI比で代用。",
+         brg:"NMA用の有効サンプルサイズ計算方法を提供（Box 1-3）。OR/RR: CI比≥3→OIS不足確実。OR: CI比≥2.5→要注意。",
+         puh:"標準OIS"},
+        {aspect:"ダウン段階",
+         izc:"自動: 閾値に基づく（Not serious/Serious/Very serious/Extremely serious）",
+         kam:"3段階まで（-1,-2,-3）。閾値による。81%がダウン。",
+         brg:"1-3段階。CI比≥30で-3。",
+         puh:"1-2段階"},
+        {aspect:"直接・間接の不精確さ",
+         izc:"A2/B3はオプション。C3でNMA推定値の不精確さを評価すれば通常不要。非整合性ありの場合のみ必要。",
+         kam:"同様。NMAフェーズで評価を推奨。",
+         brg:"「直接・間接の不精確さ評価はNMA推定値の確実性に不要」（2018, Sec 3.1）。NMA推定値のCIから直接評価。",
+         puh:"直接・間接それぞれ評価"}
+    ],
+    recommendation:"CI×閾値の判定はすべての方式で共通。OISについてはBrignardello-Petersen (2021)のCI比ルール（OR/RR≥3→OIS不足）が実用的。Izcovichスプレッドシートの閾値（Small=20, Large=100 per 1000）を出発点とし、アウトカムに応じて調整。",
+    caution:"Puhanの初期ガイダンスでは直接・間接の不精確さも評価していたが、2018年以降のガイダンスではNMA推定値レベルでの評価で十分とされている。ただし非整合性がある場合はA2/B3が必要になる。"
+},
+{
+    id:"bestestimate", step:"D", stepClass:"step-d",
+    title:"最良推定値の選択",
+    comparisons:[
+        {aspect:"基本原則",
+         izc:"非整合性なし+NMAがより精確→NMA。非整合性あり→3つのうち最高確実性を選択。スプレッドシートが自動判定。",
+         kam:"同様の原則。寄与率に基づく自動判定。",
+         brg:"「なぜ高い確実性のエビデンスがあるのに低い確実性の推定値を選ぶのか」→ 高い方を選ぶべき（2019, Sec 8）",
+         puh:"初期ガイダンス: 高い方の確実性をNMA評価の基礎に。非整合性がある場合は直接 or 間接を検討。"},
+        {aspect:"非整合性時",
+         izc:"直接・間接の最終確実性を比較（A2/B3が必要になる）",
+         kam:"3つすべての最終確実性を計算し最高を選択",
+         brg:"確実性の差が大→高い方の推定値に注目。差が小→NMA推定値でダウン。（2018, Sec 3.4）",
+         puh:"直接または間接の高い方に注目するか、NMAでダウン。"}
+    ],
+    recommendation:"Izcovich方式の判定フローが最も体系的。非整合性がない大多数のケースではNMA推定値を採用。非整合性がある場合のみA2/B3を実施し比較。",
+    caution:"例4（Bognanni et al.）のように、直接と間接で効果の方向が逆転する場合はNMA確実性が大きく低下し、直接推定値の方が適切な場合がある。"
+},
+{
+    id:"efficiency", step:"全体", stepClass:"step-a",
+    title:"効率化ルール",
+    comparisons:[
+        {aspect:"間接評価の省略",
+         izc:"直接COE=高 & 直接が支配的 → 間接評価不要",
+         kam:"同様の原則を適用",
+         brg:"「直接の確実性が高く、直接の寄与が間接以上なら間接の評価は不要」（2018, Sec 3.2）",
+         puh:"言及なし（初期ガイダンス）"},
+        {aspect:"A2/B3の省略",
+         izc:"非整合性なし & NMAがより精確 → A2/B3不要。非整合性あり時のみ実施。スプレッドシートが自動通知。",
+         kam:"同様",
+         brg:"「直接・間接の不精確さ評価は通常不要」（2018, Sec 3.1）",
+         puh:"省略の言及なし"}
+    ],
+    recommendation:"大規模NMAでは効率化ルールの活用が不可欠。特にA2/B3の省略は作業量を大幅に削減できる。",
+    caution:"省略ルールを適用する前に、直接エビデンスの寄与度を必ず確認すること。"
+},
+{
+    id:"livingsr", step:"全体", stepClass:"step-d",
+    title:"リビングSR対応",
+    comparisons:[
+        {aspect:"更新プロセス",
+         izc:"スプレッドシートのStatus列で「新規」「更新」を自動表示。前回評価を引き継ぎ。(Supp file 4)",
+         kam:"リビングNMAで開発・検証。明確なルールにより時間経過でも一貫した判定。",
+         brg:"言及なし（リビングSR以前のガイダンス）",
+         puh:"言及なし"},
+        {aspect:"再評価の深度",
+         izc:"追加エビデンス量に応じて決定。新規=フル評価、少量追加=軽微な見直し。",
+         kam:"自動判定により再評価が効率的。ルール変更時は全比較の再計算が必要。",
+         brg:"N/A",
+         puh:"N/A"}
+    ],
+    recommendation:"リビングSRではKamso方式の明確なルール設定が特に有効。時間経過でチームが変わっても一貫した判定が可能。",
+    caution:"新エビデンスの追加により、以前の確実性が変わる可能性がある。特に直接比較の追加は間接・NMA推定値にも波及する。"
+}
+];
+
+// ===== USER CHOICES =====
+let userChoices = {};
+
+// ===== RENDER =====
+function renderTOC(){
+    document.getElementById('tocList').innerHTML = SECTIONS.map(s =>
+        `<a class="toc-item" onclick="scrollToSection('${s.id}')"><span class="step-tag ${s.stepClass}">${s.step}</span> ${s.title}</a>`
+    ).join('');
+}
+
+function renderMain(){
+    document.getElementById('mainContent').innerHTML = SECTIONS.map(s => {
+        const rows = s.comparisons.map(c => `
+            <tr>
+                <td class="font-bold">${c.aspect}</td>
+                <td>${c.izc||'—'}</td>
+                <td>${c.kam||'—'}</td>
+                <td>${c.brg||'—'}</td>
+                <td>${c.puh||'—'}</td>
+            </tr>
+        `).join('');
+
+        return `
+        <div class="ref-card" id="section-${s.id}">
+            <div class="ref-header" onclick="toggleRef('${s.id}')">
+                <span class="step-tag ${s.stepClass}">${s.step}</span>
+                <div class="flex-1 font-bold text-sm">${s.title}</div>
+                <span class="text-gray-400" id="arrow-${s.id}">▼</span>
+            </div>
+            <div class="ref-body active" id="refbody-${s.id}">
+                <table class="comp-table">
+                    <thead><tr>
+                        <th style="width:15%">観点</th>
+                        <th style="width:22%"><span class="src-tag src-izc">Izcovich 2023</span></th>
+                        <th style="width:22%"><span class="src-tag src-kam">Kamso 2026</span></th>
+                        <th style="width:22%"><span class="src-tag src-brg">Brignardello-P.</span></th>
+                        <th style="width:19%"><span class="src-tag src-puh">Puhan 2014</span></th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+
+                <div class="recommend">
+                    <h5>✅ 推奨アプローチ</h5>
+                    <p>${s.recommendation}</p>
+                </div>
+
+                ${s.caution ? `<div class="caution"><h5>⚠️ 注意点</h5><p>${s.caution}</p></div>` : ''}
+
+                <div class="choice-box">
+                    <h5>🔧 あなたのプロジェクトでの採用方式</h5>
+                    <div class="choice-radio">
+                        <label><input type="radio" name="choice-${s.id}" value="izcovich" onchange="saveChoice('${s.id}','izcovich')" ${userChoices[s.id]==='izcovich'?'checked':''}> <span>Izcovich方式</span></label>
+                        <label><input type="radio" name="choice-${s.id}" value="kamso" onchange="saveChoice('${s.id}','kamso')" ${userChoices[s.id]==='kamso'?'checked':''}> <span>Kamso方式</span></label>
+                        <label><input type="radio" name="choice-${s.id}" value="brignardello" onchange="saveChoice('${s.id}','brignardello')" ${userChoices[s.id]==='brignardello'?'checked':''}> <span>Brignardello-P.方式</span></label>
+                        <label><input type="radio" name="choice-${s.id}" value="custom" onchange="saveChoice('${s.id}','custom')" ${userChoices[s.id]==='custom'?'checked':''}> <span>カスタム</span></label>
+                    </div>
+                    <textarea class="w-full mt-2 p-2 border rounded text-xs" rows="2" placeholder="カスタムの場合のメモ" id="note-${s.id}" oninput="saveNote('${s.id}',this.value)">${userChoices[s.id+'_note']||''}</textarea>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleRef(id){
+    const body = document.getElementById(`refbody-${id}`);
+    const arrow = document.getElementById(`arrow-${id}`);
+    if(body.classList.contains('active')){
+        body.classList.remove('active');
+        body.style.display='none';
+        arrow.textContent='▶';
+    } else {
+        body.classList.add('active');
+        body.style.display='block';
+        arrow.textContent='▼';
+    }
+}
+
+function scrollToSection(id){
+    const el = document.getElementById(`section-${id}`);
+    if(el){
+        el.scrollIntoView({behavior:'smooth',block:'start'});
+        const body = document.getElementById(`refbody-${id}`);
+        if(!body.classList.contains('active')){
+            body.classList.add('active');
+            body.style.display='block';
+            document.getElementById(`arrow-${id}`).textContent='▼';
+        }
+    }
+}
+
+function saveChoice(id, value){
+    userChoices[id] = value;
+    localStorage.setItem('nmaGradeChoices', JSON.stringify(userChoices));
+}
+
+function saveNote(id, value){
+    userChoices[id+'_note'] = value;
+    localStorage.setItem('nmaGradeChoices', JSON.stringify(userChoices));
+}
+
+function exportChoices(){
+    const data = JSON.stringify(userChoices, null, 2);
+    const blob = new Blob([data], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'nma_grade_method_choices.json';
+    a.click();
+}
+
+function loadChoices(){
+    const saved = localStorage.getItem('nmaGradeChoices');
+    if(saved) userChoices = JSON.parse(saved);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+    loadChoices();
+    renderTOC();
+    renderMain();
+});
+</script>
+</body>
+</html>
