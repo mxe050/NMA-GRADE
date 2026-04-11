@@ -23,10 +23,30 @@
         .lit-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.68rem;font-weight:600;margin:2px;}
         .flow-arrow{color:rgba(255,255,255,0.5);font-size:1.4rem;display:flex;align-items:center;padding:0 4px;}
         @media(max-width:768px){.flow-arrow{transform:rotate(90deg);padding:8px 0;}}
+
+        /* === Tutorial List Section === */
+        .tutorial-section{background:rgba(255,255,255,0.1);border-radius:16px;padding:28px 32px;margin-top:32px;width:100%;max-width:900px;}
+        .tutorial-section h2{color:white;font-size:1.2rem;font-weight:800;margin-bottom:16px;text-align:center;}
+        .tutorial-section h3{color:rgba(255,255,255,0.8);font-size:0.85rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.2);padding-bottom:6px;margin:20px 0 12px;letter-spacing:0.03em;}
+        .tutorial-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+        .tutorial-card{background:white;border-radius:12px;padding:18px;position:relative;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;}
+        .tutorial-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+        .tutorial-card.completed{border:2px solid #10b981;}
+        .tutorial-card .card-badge{background:#dbeafe;color:#1e40af;border-radius:4px;font-size:0.65rem;font-weight:700;padding:2px 7px;display:inline-block;margin-bottom:8px;}
+        .tutorial-card h3{font-size:0.9rem;font-weight:800;color:#1e293b;margin:0 0 6px;padding:0;border:none;}
+        .tutorial-card p{font-size:0.78rem;color:#64748b;line-height:1.5;margin:0 0 10px;flex:1;}
+        .learning-points{font-size:0.73rem;color:#475569;padding-left:16px;margin:0 0 10px;line-height:1.8;}
+        .time-info{font-size:0.72rem;color:#94a3b8;margin-bottom:10px;}
+        .start-btn{display:block;text-align:center;background:linear-gradient(135deg,#667eea,#764ba2);color:white;text-decoration:none;padding:8px 0;border-radius:8px;font-size:0.82rem;font-weight:700;transition:opacity 0.15s;}
+        .start-btn:hover{opacity:0.88;}
+        .completed-mark{position:absolute;top:10px;right:12px;font-size:1rem;}
+        .progress-bar{background:rgba(255,255,255,0.25);border-radius:99px;height:8px;overflow:hidden;margin:8px 0;}
+        .progress-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:99px;transition:width 0.5s ease;}
+        .progress-label{font-size:0.78rem;color:rgba(255,255,255,0.75);}
     </style>
 </head>
 <body>
-<main class="flex-1 flex flex-col items-center justify-center p-6">
+<main class="flex-1 flex flex-col items-center p-6 pt-10">
 
     <!-- HERO -->
     <div class="text-center mb-10 text-white">
@@ -100,6 +120,71 @@
         </div>
     </div>
 
+    <!-- ===== TUTORIAL LIST ===== -->
+    <div class="tutorial-section">
+        <h2>📚 チュートリアル一覧</h2>
+
+        <!-- 進捗バー -->
+        <div style="margin-bottom:20px;">
+            <div class="progress-bar"><div class="progress-fill" id="overallProgressFill" style="width:0%"></div></div>
+            <span class="progress-label" id="overallProgressLabel">0 / 3 完了（0%）</span>
+        </div>
+
+        <!-- 直接エビデンス編 -->
+        <h3>直接エビデンス編</h3>
+        <div class="tutorial-grid">
+
+            <div class="tutorial-card" data-tutorial-id="tutorial_haq_direct">
+                <span class="completed-mark"></span>
+                <div class="card-badge">NEW</div>
+                <h3>HAQ-DI 直接エビデンス評価</h3>
+                <p>自動判定の「Serious」誤判定を専門家が修正した実例。不一致性ドメインの視覚的確認の重要性を学びます。</p>
+                <ul class="learning-points">
+                    <li>I²値とフォレストプロットの両立解釈</li>
+                    <li>点推定値の近似性による修正判断</li>
+                    <li>Some Concerns累積重み閾値（50%）の適用</li>
+                </ul>
+                <div class="time-info">⏱ 約10分 | 難易度: ★★☆</div>
+                <a href="tutorial_haq_direct.html" class="start-btn">開始する →</a>
+            </div>
+
+            <div class="tutorial-card" data-tutorial-id="tutorial_sae_direct">
+                <span class="completed-mark"></span>
+                <div class="card-badge">NEW</div>
+                <h3>SAE 評価者間不一致の実例</h3>
+                <p>実際の論文（Appendix 4）から評価者GlenとSamの意見が分かれたケース。保守的判断の重要性を学びます。</p>
+                <ul class="learning-points">
+                    <li>High RoB累積重み60%の自動判定</li>
+                    <li>点推定値類似性 vs アウトカム特異的考察</li>
+                    <li>評価者コンセンサスのプロセス</li>
+                </ul>
+                <div class="time-info">⏱ 約12分 | 難易度: ★★★</div>
+                <a href="tutorial_sae_direct.html" class="start-btn">開始する →</a>
+            </div>
+
+        </div>
+
+        <!-- 間接・NMAエビデンス編 -->
+        <h3>間接・NMAエビデンス編</h3>
+        <div class="tutorial-grid">
+
+            <div class="tutorial-card" data-tutorial-id="tutorial_indirect_acr50">
+                <span class="completed-mark"></span>
+                <div class="card-badge">NEW</div>
+                <h3>ACR50 間接・NMAエビデンス評価</h3>
+                <p>貢献行列を用いた非推移性アルゴリズムと、NMA確実性評価の完全なフロー（B1→B2→C1→C2→C3）を体験します。</p>
+                <ul class="learning-points">
+                    <li>貢献行列による上位2経路の特定</li>
+                    <li>非推移性の自動アルゴリズム（Figure 2）</li>
+                    <li>不精確さの最小化的枠組み（Table 1）</li>
+                </ul>
+                <div class="time-info">⏱ 約15分 | 難易度: ★★★</div>
+                <a href="tutorial_indirect_acr50.html" class="start-btn">開始する →</a>
+            </div>
+
+        </div>
+    </div>
+
     <!-- FLOW DESCRIPTION -->
     <div class="mt-8 text-center text-white/70 text-xs max-w-2xl">
         <div class="flex flex-wrap justify-center items-center gap-2">
@@ -129,5 +214,6 @@
     </p>
 </footer>
 
+<script src="js/progress.js"></script>
 </body>
 </html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAQ-DI 直接エビデンス評価 | NMA-GRADE チュートリアル</title>
+  <link rel="stylesheet" href="css/nma-grade-tutorial.css">
+  <style>
+    h1 { color: #1a3c6b; }
+    .domain-title { color: #2c7be5; }
+    .forest-plot {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 0.88em;
+      overflow-x: auto;
+    }
+    .study-row {
+      display: flex;
+      align-items: center;
+      margin: 7px 0;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .study-name { width: 160px; font-weight: bold; flex-shrink: 0; }
+    .study-ci { color: #6c757d; font-size: 0.85em; }
+    .overall-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .summary-table { width: 100%; border-collapse: collapse; }
+    .summary-table th, .summary-table td {
+      padding: 10px 14px;
+      border: 1px solid #dee2e6;
+      text-align: center;
+    }
+    .summary-table th { background: #2c7be5; color: white; }
+  </style>
+</head>
+<body>
+
+<h1>🎓 チュートリアル: 直接エビデンスのGRADE確実性評価</h1>
+<p><strong>症例:</strong> 関節リウマチ治療における HAQ-DI（身体機能）アウトカム</p>
+<p>この例は Kamso et al. (2026) <em>Journal of Clinical Epidemiology</em> の実際の不一致例（Appendix 4）を基にしています。</p>
+
+<div class="step-indicator" id="stepIndicator">
+  <div class="step active" id="step1">1</div>
+  <div class="step pending" id="step2">2</div>
+  <div class="step pending" id="step3">3</div>
+  <div class="step pending" id="step4">4</div>
+  <div class="step pending" id="step5">5</div>
+</div>
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill" style="width:20%"></div>
+</div>
+
+<!-- ========== STEP 1: フォレストプロット ========== -->
+<div id="section1">
+  <div class="scenario-box">
+    <h2>📋 臨床シナリオ</h2>
+    <p>あなたはDMARD-naïve（MTX未使用）関節リウマチ患者に対する生物学的製剤の有効性を評価する living NMA のGRADE担当者です。</p>
+    <p><strong>アウトカム:</strong> HAQ-DI（Health Assessment Questionnaire-Disability Index）— 身体機能の連続アウトカム（値が低いほど良好）</p>
+    <p><strong>比較:</strong> 特定の生物学的製剤 vs メトトレキサート（MTX）単剤</p>
+    <p>フォレストプロットと各研究の情報を確認し、各GRADEドメインを評価してください。</p>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-title">📊 フォレストプロット（直接エビデンス）</div>
+    <p>各研究のバイアスリスク（RoB）・間接性・重み（寄与率）が表示されています。</p>
+
+    <div class="forest-plot">
+      <div style="color:#495057; font-weight:bold; margin-bottom:10px; font-size:0.95em;">
+        研究名 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RoB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 間接性 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 重み% &nbsp;&nbsp; 効果推定値（MD）
+      </div>
+
+      <div class="study-row">
+        <div class="study-name">Trial_A (2008)</div>
+        <span class="rob-badge rob-some">Some Concerns</span>
+        <span class="rob-badge rob-some">Some Concerns</span>
+        <span style="min-width:36px; text-align:right; font-weight:bold;">38%</span>
+        <div style="position:relative; width:180px; height:20px; background:#e9ecef; border-radius:3px; flex-shrink:0;">
+          <div style="position:absolute; left:50%; width:2px; height:100%; background:#adb5bd;"></div>
+          <div style="position:absolute; left:38%; top:6px; width:22%; height:8px; background:#2c7be5; border-radius:2px;"></div>
+          <div style="position:absolute; left:38%; top:3px; width:1px; height:14px; background:#1a3c6b;"></div>
+          <div style="position:absolute; left:60%; top:3px; width:1px; height:14px; background:#1a3c6b;"></div>
+        </div>
+        <span class="study-ci">MD: -0.22 (-0.31, -0.13)</span>
+      </div>
+
+      <div class="study-row">
+        <div class="study-name">Trial_B (2012)</div>
+        <span class="rob-badge rob-low">Low</span>
+        <span class="rob-badge rob-low">Low</span>
+        <span style="min-width:36px; text-align:right; font-weight:bold;">37%</span>
+        <div style="position:relative; width:180px; height:20px; background:#e9ecef; border-radius:3px; flex-shrink:0;">
+          <div style="position:absolute; left:50%; width:2px; height:100%; background:#adb5bd;"></div>
+          <div style="position:absolute; left:37%; top:6px; width:24%; height:8px; background:#2c7be5; border-radius:2px;"></div>
+          <div style="position:absolute; left:37%; top:3px; width:1px; height:14px; background:#1a3c6b;"></div>
+          <div style="position:absolute; left:61%; top:3px; width:1px; height:14px; background:#1a3c6b;"></div>
+        </div>
+        <span class="study-ci">MD: -0.25 (-0.35, -0.15)</span>
+      </div>
+
+      <div class="study-row">
+        <div class="study-name">Trial_C (2015)</div>
+        <span class="rob-badge rob-some">Some Concerns</span>
+        <span class="rob-badge rob-low">Low</span>
+        <span style="min-width:36px; text-align:right; font-weight:bold;">25%</span>
+        <div style="position:relative; width:180px; height:20px; background:#e9ecef; border-radius:3px; flex-shrink:0;">
+          <div style="position:absolute; left:50%; width:2px; height:100%; background:#adb5bd;"></div>
+          <div style="position:absolute; left:36%; top:6px; width:20%; height:8px; background:#2c7be5; border-radius:2px;"></div>
+          <div style="position:absolute; left:36%; top:3px; width:1px; height:14px; background:#1a3c6b;"></div>
+          <div style="position:absolute; left:56%; top:3px; width:1px; height:14px; background:#1a3c6b;"></div>
+        </div>
+        <span class="study-ci">MD: -0.28 (-0.41, -0.15)</span>
+      </div>
+
+      <hr style="border-color:#dee2e6; margin:10px 0;">
+
+      <div class="study-row">
+        <div class="study-name"><strong>統合推定値</strong></div>
+        <span style="min-width:36px;"></span>
+        <span style="min-width:100px;"></span>
+        <div style="position:relative; width:180px; height:22px; background:#e9ecef; border-radius:3px; flex-shrink:0;">
+          <div style="position:absolute; left:50%; width:2px; height:100%; background:#adb5bd;"></div>
+          <div style="position:absolute; left:38%; top:5px; width:22%; height:12px; background:#1a3c6b; border-radius:2px;"></div>
+          <div style="position:absolute; left:38%; top:2px; width:1px; height:18px; background:#1a3c6b;"></div>
+          <div style="position:absolute; left:60%; top:2px; width:1px; height:18px; background:#1a3c6b;"></div>
+        </div>
+        <span class="study-ci"><strong>MD: -0.24 (-0.31, -0.17)</strong></span>
+      </div>
+
+      <p style="margin-top:10px; color:#6c757d; font-size:0.85em;">
+        I² = 12%（95% CI: 0%, 68%）　τ² = 0.0003　p for heterogeneity = 0.32
+      </p>
+    </div>
+  </div>
+
+  <button class="next-btn primary" style="display:block;" onclick="showSection(2)">
+    データを確認したら次のステップへ →
+  </button>
+</div>
+
+<!-- ========== STEP 2: バイアスリスク ========== -->
+<div id="section2" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">⚠️ ステップ2: バイアスリスク（Study Limitations）<span class="automated-badge">自動判定あり</span></div>
+
+    <table class="info-table">
+      <tr><th>研究</th><th>RoB評価</th><th>重み</th><th>主な懸念事項</th></tr>
+      <tr>
+        <td>Trial_A</td>
+        <td><span class="rob-badge rob-some">Some Concerns</span></td>
+        <td>38%</td>
+        <td>1990年代の研究、MTX低用量（8 mg/week）</td>
+      </tr>
+      <tr>
+        <td>Trial_B</td>
+        <td><span class="rob-badge rob-low">Low</span></td>
+        <td>37%</td>
+        <td>二重盲検RCT、脱落率低い（&lt;10%）</td>
+      </tr>
+      <tr>
+        <td>Trial_C</td>
+        <td><span class="rob-badge rob-some">Some Concerns</span></td>
+        <td>25%</td>
+        <td>オープンラベル設計</td>
+      </tr>
+    </table>
+
+    <div class="algorithm-box">
+      <strong>🤖 自動判定アルゴリズムの計算過程:</strong><br><br>
+      Some Concerns または High RoB の累積重み<br>
+      = Trial_A（38%）+ Trial_C（25%）= <strong>63%</strong>（50%超）<br><br>
+      High RoB のみの累積重み = <strong>0%</strong>（50%未満）<br><br>
+      → ルール: Some Concernsの累積重みが50%超、かつHigh RoBが50%未満<br>
+      → 自動判定: <strong style="color:#856404;">「Some Concerns」フラグ</strong>
+    </div>
+
+    <p><strong>❓ 質問:</strong> 自動判定は「Some Concerns」としています。フォレストプロットを見ると3研究の点推定値は -0.22〜-0.28 と非常に近接しています。Low RoB の Trial_B（重み37%）も同様の結果です。あなたの最終判断は？</p>
+
+    <button class="rating-btn" onclick="checkROB(this,'not_serious')">深刻でない (Not Serious)</button>
+    <button class="rating-btn" onclick="checkROB(this,'some_concerns')">いくらかの懸念 (Some Concerns) ← 自動判定</button>
+    <button class="rating-btn" onclick="checkROB(this,'serious')">深刻 (Serious)</button>
+
+    <div id="robFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next2Btn" onclick="showSection(3)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 3: 不一致性 ========== -->
+<div id="section3" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">🔄 ステップ3: 不一致性（Inconsistency）<span class="automated-badge">自動判定あり</span></div>
+
+    <div class="algorithm-box">
+      <strong>🤖 自動判定アルゴリズム:</strong><br><br>
+      I² = <strong>12%</strong>（閾値 30% 未満）<br>
+      → ルール: I² &lt; 30% → 自動判定: <strong>「Not Serious（深刻でない）」</strong>
+    </div>
+
+    <div style="background:#fff3cd; border:1px solid #ffc107; padding:14px; border-radius:6px; margin:12px 0;">
+      <strong>⚡ 実際の不一致例（Appendix 4 HAQ の行より）:</strong><br>
+      論文中では自動判定が <strong style="color:#721c24;">「Serious」</strong> と出力されていました（計算条件の違いによる）。<br>
+      評価者Glenはフォレストプロットを確認し <strong style="color:#28a745;">「Not Serious」</strong> に変更。<br>
+      評価者Samも最終的に同意。<br>
+      → 最終判定: <strong>Not Serious</strong>（確実性が Moderate → High に向上）
+    </div>
+
+    <p>フォレストプロットと統計値から、不一致性を評価してください。</p>
+    <p>参考: I²=12%、p=0.32（有意な異質性なし）、点推定値 -0.22〜-0.28（非常に近接）</p>
+
+    <button class="rating-btn" onclick="checkInconsistency(this,'not_serious')">深刻でない (Not Serious) — I²=12%</button>
+    <button class="rating-btn" onclick="checkInconsistency(this,'some_concerns')">いくらかの懸念 (Some Concerns)</button>
+    <button class="rating-btn" onclick="checkInconsistency(this,'serious')">深刻 (Serious) — 誤った自動判定</button>
+
+    <div id="inconsistencyFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next3Btn" onclick="showSection(4)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 4: 間接性 ========== -->
+<div id="section4" style="display:none;">
+  <div class="domain-card">
+    <div class="domain-title">🎯 ステップ4: 間接性（Indirectness）<span class="automated-badge">自動判定あり</span></div>
+
+    <table class="info-table">
+      <tr><th>研究</th><th>間接性</th><th>重み</th><th>MTX用量</th><th>罹患期間</th></tr>
+      <tr>
+        <td>Trial_A</td>
+        <td><span class="rob-badge rob-some">Some Concerns</span></td>
+        <td>38%</td>
+        <td>8 mg/week ⚠️</td>
+        <td>4.2年</td>
+      </tr>
+      <tr>
+        <td>Trial_B</td>
+        <td><span class="rob-badge rob-low">Low</span></td>
+        <td>37%</td>
+        <td>15 mg/week ✅</td>
+        <td>1.8年</td>
+      </tr>
+      <tr>
+        <td>Trial_C</td>
+        <td><span class="rob-badge rob-low">Low</span></td>
+        <td>25%</td>
+        <td>15 mg/week ✅</td>
+        <td>2.3年</td>
+      </tr>
+    </table>
+
+    <div class="algorithm-box">
+      <strong>🤖 自動判定アルゴリズム（Appendix 2a より）:</strong><br><br>
+      判定ルール:<br>
+      ・MTX ≤ 10 mg/week → Some Concerns（Trial_A 該当）<br><br>
+      Some Concerns の累積重み = <strong>38%</strong>（30%〜50% の範囲）<br>
+      High indirectness の累積重み = <strong>0%</strong><br><br>
+      → ルール: Some Concerns 重みが 30〜50% の場合はフラグのみ、自動ダウングレードなし<br>
+      → 自動判定: <strong>「Not Serious」</strong>
+    </div>
+
+    <button class="rating-btn" onclick="checkIndirectness(this,'not_serious')">深刻でない (Not Serious) ← 自動判定</button>
+    <button class="rating-btn" onclick="checkIndirectness(this,'some_concerns')">いくらかの懸念 (Some Concerns)</button>
+    <button class="rating-btn" onclick="checkIndirectness(this,'serious')">深刻 (Serious)</button>
+
+    <div id="indirectnessFeedback" class="feedback"></div>
+    <button class="next-btn primary" id="next4Btn" onclick="showSection(5)">次のステップへ →</button>
+  </div>
+</div>
+
+<!-- ========== STEP 5: 総合評価 ========== -->
+<div id="section5" style="display:none;">
+  <div class="overall-box">
+    <h2>🏁 ステップ5: 総合確実性評価</h2>
+
+    <table class="summary-table">
+      <tr>
+        <th>ドメイン</th>
+        <th>自動判定</th>
+        <th>最終判定</th>
+        <th>数値（ダウングレード換算）</th>
+      </tr>
+      <tr>
+        <td>バイアスリスク</td>
+        <td>Some Concerns</td>
+        <td class="grade-moderate">Some Concerns</td>
+        <td>-0.5</td>
+      </tr>
+      <tr>
+        <td>不一致性</td>
+        <td><span style="color:#dc3545;">Serious（誤）</span></td>
+        <td class="grade-high">Not Serious ✓修正済</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>間接性</td>
+        <td>Not Serious</td>
+        <td class="grade-high">Not Serious</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>出版バイアス</td>
+        <td>—</td>
+        <td>検出されず</td>
+        <td>0</td>
+      </tr>
+      <tr style="background:#e8f5e9;">
+        <td><strong>合計</strong></td>
+        <td>—</td>
+        <td colspan="2"><strong>-0.5 → 切り捨て → 0回ダウングレード</strong></td>
+      </tr>
+    </table>
+
+    <p style="margin-top:16px;"><strong>最終確実性評価を選択してください:</strong></p>
+    <button class="rating-btn" onclick="checkOverall(this,'high')">High（高）⊕⊕⊕⊕</button>
+    <button class="rating-btn" onclick="checkOverall(this,'moderate')">Moderate（中）⊕⊕⊕◯</button>
+    <button class="rating-btn" onclick="checkOverall(this,'low')">Low（低）⊕⊕◯◯</button>
+    <button class="rating-btn" onclick="checkOverall(this,'very_low')">Very Low（非常に低）⊕◯◯◯</button>
+
+    <div id="overallFeedback" class="feedback"></div>
+  </div>
+
+  <div class="completion-box" id="completionBox">
+    <h2>🎉 チュートリアル完了！</h2>
+    <p><strong>学習のポイント:</strong></p>
+    <ul>
+      <li>自動判定はあくまで出発点。フォレストプロットの視覚的確認が重要</li>
+      <li>I²=12%、p=0.32、点推定値の近似 → 不一致性「Not Serious」が明確</li>
+      <li>自動の「Serious」誤判定を修正したことで Moderate → <strong>High</strong> に向上</li>
+      <li>Some Concerns 研究が63%の重みでも、点推定値が一致していれば影響は限定的</li>
+    </ul>
+    <p style="margin-top:16px;">
+      <a href="tutorial_sae_direct.html" class="start-btn">次の例: SAE 評価者間不一致 →</a>
+    </p>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/progress.js"></script>
+<script>
+function showSection(n) {
+  for (var i = 1; i <= 5; i++) {
+    var sec  = document.getElementById('section' + i);
+    var step = document.getElementById('step' + i);
+    if (sec)  sec.style.display = (i === n) ? 'block' : 'none';
+    if (step) step.className = 'step ' + (i < n ? 'completed' : i === n ? 'active' : 'pending');
+  }
+  document.getElementById('progressFill').style.width = (n * 20) + '%';
+  window.scrollTo(0, 100);
+}
+
+function checkROB(btn, answer) {
+  document.querySelectorAll('#section2 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('robFeedback');
+  if (answer === 'some_concerns') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 自動判定と一致します。Some Concerns 研究の累積重みが63%（>50%）のため「Some Concerns」フラグが適切です。ただし点推定値の一致性を重視してNot Seriousとする専門家もいます（close callの典型例）。';
+  } else if (answer === 'not_serious') {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '⚠️ 誤りではありませんが標準的ではありません。Some Concerns 研究が63%を占めるため、最低でも「Some Concerns」フラグが推奨されます。点推定値の近似性を根拠にするなら、コメント欄に明記してください。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ 過大評価です。High RoB 研究は含まれておらず、点推定値も非常に近接しています。「Some Concerns」が最も適切です。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next2Btn').style.display = 'inline-block';
+}
+
+function checkInconsistency(btn, answer) {
+  document.querySelectorAll('#section3 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('inconsistencyFeedback');
+  if (answer === 'not_serious') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！実際の論文での最終判断です。I²=12%、p=0.32、点推定値 -0.22〜-0.28 の近似から「Not Serious」が明確です。自動判定「Serious」の誤りを専門家が修正した重要な例です。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ I²=12%、p=0.32、点推定値の近似性から「Not Serious」が正解です。フォレストプロットの視覚的確認が、自動判定の誤りを修正するために重要でした。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next3Btn').style.display = 'inline-block';
+}
+
+function checkIndirectness(btn, answer) {
+  document.querySelectorAll('#section4 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('indirectnessFeedback');
+  if (answer === 'not_serious') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！自動判定と一致します。Trial_A の MTX 低用量（8 mg）で Some Concerns ですが、累積重み 38% は自動ダウングレード閾値の 50% 未満です。Not Serious が妥当です。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ Some Concerns 研究の重みは 38%（<50% 閾値）のため、自動ダウングレードは発動しません。Low indirectness 研究が62%を占め、Not Serious が最適です。';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next4Btn').style.display = 'inline-block';
+}
+
+function checkOverall(btn, answer) {
+  document.querySelectorAll('#section5 .rating-btn').forEach(function(b) { b.className = 'rating-btn'; });
+  var fb = document.getElementById('overallFeedback');
+  if (answer === 'high') {
+    btn.className = 'rating-btn correct';
+    fb.className  = 'feedback correct';
+    fb.innerHTML  = '✅ 正解！計算: Some Concerns(-0.5) + Not Serious(0) + Not Serious(0) = -0.5 → 切り捨て → 0回ダウングレード → <strong>High Certainty ⊕⊕⊕⊕</strong><br>自動判定の誤り（不一致性 Serious）を修正したことで Moderate → High に向上しました。';
+    document.getElementById('completionBox').style.display = 'block';
+    NMAProgress.markCompleted('tutorial_haq_direct');
+  } else if (answer === 'moderate') {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ Moderate は不一致性を「Serious」のままにした場合の結果です。Not Serious に修正された場合、ダウングレードは0回となり High が正解です。';
+  } else {
+    btn.className = 'rating-btn incorrect';
+    fb.className  = 'feedback incorrect';
+    fb.innerHTML  = '❌ ダウングレード回数が多すぎます。Some Concerns(-0.5) のみで合計 -0.5、切り捨てで0回ダウングレード → High が正解です。';
+  }
+  fb.style.display = 'block';
+}
+</script>
+
+</body>
+</html>
