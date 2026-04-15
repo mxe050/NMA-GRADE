@@ -3,278 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NMA GRADE評価サポートツール v2.2 (Complete)</title>
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <title>NMA GRADE評価サポートツール v2.2 - R Shiny版</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
         body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:16px;}
-        .container-custom{max-width:1850px;margin:0 auto;}
+        .container-custom{max-width:860px;margin:0 auto;}
         h1{text-shadow:2px 2px 4px rgba(0,0,0,0.3);}
-        .tab-btn{background:rgba(255,255,255,0.3);transition:all 0.3s;font-size:0.82rem;}
-        .tab-btn:hover{background:rgba(255,255,255,0.5);}
-        .tab-btn.active{background:white;color:#667eea;}
-        .assessment-table th{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;position:sticky;top:0;z-index:10;font-size:0.73rem;white-space:nowrap;padding:5px 7px;}
-        .assessment-table td{padding:4px 6px;font-size:0.8rem;}
-        .assessment-table tr:hover td{background-color:#f8f9fa;}
-        .grade-high{background:#d4edda;color:#155724;border:1px solid #c3e6cb;}
-        .grade-moderate{background:#fff3cd;color:#856404;border:1px solid #ffeeba;}
-        .grade-low{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
-        .grade-very-low{background:#f5c6cb;color:#721c24;border:1px solid #e0a800;}
-        .detail-row{display:none;background-color:#f1f3f5!important;}
-        .detail-row.show{display:table-row;}
-        .collapsible-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease-out;}
-        .collapsible-content.show{max-height:9000px;padding:12px;}
-        #network-graph-container{height:420px;width:100%;background:#fff;border-radius:0.5rem;border:1px solid #e5e7eb;}
-        .certainty-badge{min-width:58px;text-align:center;display:inline-block;padding:2px 6px;border-radius:9999px;font-size:0.68rem;font-weight:700;}
-        .estimate-val{font-family:'Consolas',monospace;font-weight:bold;color:#2d3748;font-size:0.78rem;}
-        .ci-val{font-family:'Consolas',monospace;font-size:0.7rem;color:#718096;}
-        .selected-source{background-color:#ebf8ff;border:2px solid #63b3ed;}
-        .guidance-box{background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0284c7;padding:10px 14px;margin-bottom:14px;border-radius:6px;font-size:0.8rem;}
-        .guidance-box h4{color:#0369a1;font-weight:700;margin-bottom:5px;font-size:0.85rem;}
-        .guidance-box .ref{color:#6b7280;font-size:0.7rem;font-style:italic;}
-        .criteria-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:0.75rem;}
-        .criteria-table th{background:#e0f2fe;padding:3px 6px;text-align:left;font-size:0.7rem;border:1px solid #bae6fd;}
-        .criteria-table td{padding:3px 6px;border:1px solid #e2e8f0;}
-        .diff-box{background:#fefce8;border:1px solid #fde68a;border-left:4px solid #eab308;padding:8px 12px;margin-top:6px;border-radius:4px;font-size:0.75rem;}
-        .diff-box strong{color:#92400e;}
-        .step-indicator{display:inline-block;padding:1px 8px;border-radius:10px;font-size:0.65rem;font-weight:700;margin-right:3px;}
-        .step-a{background:#dbeafe;color:#1e40af;}.step-b{background:#fce7f3;color:#9d174d;}
-        .step-c{background:#d1fae5;color:#065f46;}.step-d{background:#fef3c7;color:#92400e;}
-        .auto-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:0.63rem;font-weight:600;}
-        .auto-badge.auto{background:#dbeafe;color:#1e40af;}
-        .auto-badge.manual{background:#fef3c7;color:#92400e;}
-        .auto-badge.skip{background:#d1fae5;color:#065f46;}
-        .reason-tags span{display:inline-block;margin:1px;padding:1px 4px;border-radius:3px;font-size:0.63rem;}
-        .status-new{background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;}
-        .status-updated{background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;}
-        .status-unchanged{background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;}
-        .efficiency-notice{background:#ecfdf5;border:1px solid #6ee7b7;border-left:4px solid #10b981;padding:8px 12px;border-radius:4px;font-size:0.75rem;margin-bottom:8px;}
-        @media print{
-            body{background:white!important;padding:0;}
-            .tab-btn,.guidance-box button,.collapsible-content:not(.show),.no-print{display:none!important;}
-            .tab-content{display:block!important;page-break-inside:avoid;}
-            .tab-content.hidden{display:block!important;}
-            .assessment-table th{background:#667eea!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-            .certainty-badge,.grade-high,.grade-moderate,.grade-low,.grade-very-low{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-        }
+        .doc-card{background:white;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:32px 36px;margin-top:12px;}
+        .section-title{font-size:1.05rem;font-weight:800;color:#1e40af;border-left:4px solid #667eea;padding-left:10px;margin:28px 0 12px;}
+        .section-title:first-of-type{margin-top:0;}
+        .sub-title{font-size:0.92rem;font-weight:700;color:#374151;margin:16px 0 8px;}
+        .info-box{background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0284c7;padding:12px 16px;border-radius:6px;font-size:0.85rem;color:#1e3a5f;margin-bottom:16px;}
+        .code-block{background:#1e293b;color:#e2e8f0;padding:14px 18px;border-radius:8px;font-family:'Consolas',monospace;font-size:0.82rem;line-height:1.7;white-space:pre;overflow-x:auto;margin:8px 0 14px;}
+        .step-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:10px 0 16px;}
+        .step-table th{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:7px 12px;text-align:left;font-size:0.82rem;}
+        .step-table td{padding:7px 12px;border-bottom:1px solid #e5e7eb;}
+        .step-table tr:last-child td{border-bottom:none;}
+        .step-table tr:hover td{background:#f8faff;}
+        .step-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;}
+        .step-a{background:#dbeafe;color:#1e40af;}
+        .step-b{background:#fce7f3;color:#9d174d;}
+        .step-c{background:#d1fae5;color:#065f46;}
+        .step-d{background:#fef3c7;color:#92400e;}
+        .flow-box{background:#f8faff;border:1px solid #c7d9ff;border-radius:10px;padding:16px 20px;font-size:0.85rem;line-height:2.1;margin-bottom:16px;}
+        .flow-box .flow-sep{color:#94a3b8;font-size:0.8rem;margin:6px 0;}
+        .flow-arrow{color:#667eea;font-weight:700;}
+        .pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:8px;}
+        .pkg-group{padding:10px 14px;border-radius:8px;margin-bottom:10px;}
+        .pkg-group h4{font-size:0.8rem;font-weight:700;margin-bottom:8px;letter-spacing:0.03em;}
+        .pkg-group ul{list-style:none;padding:0;margin:0;}
+        .pkg-group li{font-size:0.82rem;padding:3px 0;border-bottom:1px solid rgba(0,0,0,0.05);color:#374151;}
+        .pkg-group li:last-child{border-bottom:none;}
+        .pkg-group li strong{color:#1e40af;font-family:'Consolas',monospace;font-size:0.82rem;}
+        .pkg-stat{background:#eff6ff;border:1px solid #bfdbfe;}
+        .pkg-shiny{background:#fdf4ff;border:1px solid #e9d5ff;}
+        .pkg-data{background:#f0fdf4;border:1px solid #bbf7d0;}
+        .pkg-io{background:#fffbeb;border:1px solid #fde68a;}
+        .quickstart-list{list-style:none;padding:0;counter-reset:qs-counter;}
+        .quickstart-list li{counter-increment:qs-counter;display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:0.87rem;color:#374151;}
+        .quickstart-list li:last-child{border-bottom:none;}
+        .quickstart-list li::before{content:counter(qs-counter);display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-size:0.72rem;font-weight:700;flex-shrink:0;margin-top:1px;}
+        .cite-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:12px 16px;font-size:0.78rem;color:#4b5563;line-height:1.7;margin-bottom:8px;}
+        .cite-box strong{color:#1e40af;font-size:0.8rem;}
+        .download-section{text-align:center;margin:20px 0 6px;}
+        .download-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#10b981,#059669);color:white;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:1rem;box-shadow:0 4px 16px rgba(16,185,129,0.35);transition:opacity 0.15s,transform 0.15s;}
+        .download-btn:hover{opacity:0.9;transform:translateY(-2px);}
+        .download-sub{font-size:0.78rem;color:#64748b;margin-top:8px;}
+        .gh-link{display:inline-flex;align-items:center;gap:6px;color:#667eea;text-decoration:none;font-size:0.83rem;font-weight:600;}
+        .gh-link:hover{text-decoration:underline;}
+        @media(max-width:600px){.pkg-grid{grid-template-columns:1fr;}}
     </style>
 </head>
 <body class="text-gray-800">
 <div class="container-custom">
+
     <div class="page-nav">
         <a href="index.html">&#127968; ホーム</a>
         <a href="tutorial.html">&#127891; チュートリアル</a>
         <a href="reference.html" target="_blank">&#128218; リファレンス</a>
     </div>
-    <div class="page-nav no-print">
-        <a href="index.html">&#127968; ホーム</a>
-        <a href="tutorial.html">&#127891; チュートリアル</a>
-        <a href="reference.html" target="_blank">&#128218; リファレンス</a>
-    </div>
+
     <h1 class="text-2xl font-bold text-center text-white mb-1">🔬 NMA GRADE評価サポートツール v2.2</h1>
-    <p class="text-center text-white/80 text-xs mb-4">Izcovich BMJ 2023 | Kamso JCE 2026 P1&P2 | Brignardello-Petersen JCE 2018/2019/2021 | Puhan BMJ 2014 | Yao JCE 2026</p>
+    <p class="text-center text-white/80 text-xs mb-5">Izcovich BMJ 2023 | Kamso JCE 2026 P1&amp;P2 | Brignardello-Petersen JCE 2018/2019/2021 | Puhan BMJ 2014 | Yao JCE 2026</p>
 
-    <div class="flex flex-wrap gap-1 mb-5 border-b border-white/20 pb-1 no-print">
-        <button class="tab-btn active px-3 py-2 rounded-t-lg font-bold text-white" onclick="showTab('overview')">📊概要</button>
-        <button class="tab-btn px-3 py-2 rounded-t-lg font-bold text-white" onclick="showTab('nma-input')">📥入力</button>
-        <button class="tab-btn px-3 py-2 rounded-t-lg font-bold text-white" onclick="showTab('direct')"><span class="step-indicator step-a">A1</span>直接</button>
-        <button class="tab-btn px-3 py-2 rounded-t-lg font-bold text-white" onclick="showTab('indirect')"><span class="step-indicator step-b">B</span>間接</button>
-        <button class="tab-btn px-3 py-2 rounded-t-lg font-bold text-white" onclick="showTab('network')"><span class="step-indicator step-c">C1-2</span>NMA</button>
-        <button class="tab-btn px-3 py-2 rounded-t-lg font-bold text-white" onclick="showTab('imprecision')"><span class="step-indicator step-c">C3</span><span class="step-indicator step-d">D</span>精確性</button>
-        <button class="tab-btn px-3 py-2 rounded-t-lg font-bold text-white" onclick="showTab('summary')">📋SoF</button>
-    </div>
+    <div class="doc-card">
 
-    <!-- Tutorial Import Banner -->
-    <div id="tutorialImportBanner" class="tutorial-import-banner" style="display:none;">
-        <span>&#127891; チュートリアルの例題データが見つかりました。評価ツールに読み込みますか？</span>
-        <div style="display:flex;gap:8px;flex-shrink:0;">
-            <button onclick="importTutorialData()">読み込む</button>
-            <button class="dismiss" onclick="dismissTutorialBanner()">閉じる</button>
+        <!-- 概要 -->
+        <div class="info-box">
+            <strong>🧪 NMA GRADE 評価サポートツール（R Shiny版）</strong><br>
+            NMAにおけるエビデンスの確実性の評価サポートツールとして、統計ソフトのRを利用したShinyアプリです。
+            データ読込・NMA実行・GRADE評価（A1〜D）・SoFテーブル出力まで、一連のフローをGUI操作で実施できます。
         </div>
-    </div>
 
-    <!-- Tutorial Import Banner -->
-    <div id="tutorialImportBanner" class="tutorial-import-banner" style="display:none;">
-        <span>&#127891; チュートリアルの例題データが見つかりました。評価ツールに読み込みますか？</span>
-        <div style="display:flex;gap:8px;flex-shrink:0;">
-            <button onclick="importTutorialData()">読み込む</button>
-            <button class="dismiss" onclick="dismissTutorialBanner()">閉じる</button>
+        <!-- ダウンロード -->
+        <p class="section-title">📥 ダウンロード</p>
+        <div class="download-section">
+            <a href="https://raw.githubusercontent.com/mxe050/NMA-GRADE/master/R/app.R"
+               download="app.R"
+               class="download-btn">
+                <span style="font-size:1.4rem;">⬇️</span>
+                <span>app.R をダウンロード</span>
+            </a>
+            <p class="download-sub">
+                単一ファイル版（app.R）をダウンロードして、RStudio または Rコンソールから実行してください。<br>
+                <a href="https://github.com/mxe050/NMA-GRADE/tree/master/R" target="_blank" class="gh-link" style="margin-top:4px;display:inline-flex;">
+                    <span>📂</span> GitHub でファイルを確認する ↗
+                </a>
+            </p>
         </div>
-    </div>
 
-    <!-- ===== OVERVIEW ===== -->
-    <div id="overview" class="tab-content active bg-white p-5 rounded-b-lg rounded-tr-lg shadow-xl">
-        <div class="guidance-box mb-4">
-            <h4>📖 全体プロセス（4段階・各比較12-13判断）</h4>
-            <div class="grid grid-cols-4 gap-2 text-center text-xs mb-2">
-                <div class="bg-blue-100 p-2 rounded"><strong>A:直接</strong><br>A1:4ドメイン→仮確実性<br><span class="text-gray-500">A2:不精確さ(任意)</span></div>
-                <div class="bg-pink-100 p-2 rounded"><strong>B:間接</strong><br>B1:ループ→初期確実性<br>B2:非推移性→仮確実性<br><span class="text-gray-500">B3:不精確さ(任意)</span></div>
-                <div class="bg-green-100 p-2 rounded"><strong>C:NMA</strong><br>C1:出発点<br>C2:非整合性<br>C3:不精確さ(必須)</div>
-                <div class="bg-yellow-100 p-2 rounded"><strong>D:最良推定値</strong><br>非整合性なし→NMA<br>あり→最高確実性を選択</div>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+
+        <!-- 起動方法 -->
+        <p class="section-title">🚀 起動方法</p>
+
+        <p class="sub-title">RStudio から起動する場合</p>
+        <ol style="list-style:decimal;padding-left:22px;font-size:0.87rem;color:#374151;line-height:2;">
+            <li><code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:0.82rem;">app.R</code> を RStudio で開く</li>
+            <li>右上の「<strong>Run App</strong>」ボタンをクリック</li>
+        </ol>
+
+        <p class="sub-title">R コンソールから起動する場合</p>
+        <div class="code-block"># 作業ディレクトリを app.R のある場所に変更（自分のPC環境に合わせて変更）
+setwd("F:/マイドライブ/2016年works/AI/作成アプリ/NMA確実性")
+
+shiny::runApp("app.R")</div>
+
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+
+        <!-- 使用フロー -->
+        <p class="section-title">🔄 使用フロー（ステップ順）</p>
+        <div class="flow-box">
+            <div><strong style="color:#1e40af;">0. プロジェクト設定</strong>　&nbsp;効果指標（OR/RR等）・アウトカム・閾値を設定</div>
+            <div class="flow-arrow">↓</div>
+            <div><strong style="color:#1e40af;">1. データ読込</strong>　&nbsp;CSVアップロード <em>or</em> サンプルデータ（smoking 等）を読込</div>
+            <div class="flow-arrow">↓</div>
+            <div><strong style="color:#1e40af;">2. NMA実行</strong>　&nbsp;参照介入・推定法を選択して「NMA実行」ボタン</div>
+            <div class="flow-sep">─── 解析結果確認 ───</div>
+            <div style="padding-left:16px;color:#475569;">
+                ネットワーク図 <span class="flow-arrow">→</span> Forest Plot <span class="flow-arrow">→</span> netsplit <span class="flow-arrow">→</span> リーグテーブル <span class="flow-arrow">→</span> ランキング
             </div>
-            <div class="diff-box"><strong>核心:</strong> NMA推定値が常に最良とは限らない。<span class="ref ml-1">Izcovich BMJ 2023 p.6-7</span></div>
-            <p class="ref mt-1">Izcovich BMJ 2023 Fig 1; Supp table 1; ステップ表.pdf</p>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-3 rounded-lg text-center shadow"><div class="text-2xl font-bold" id="totalComparisons">0</div><div class="text-xs">総比較</div></div>
-            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-3 rounded-lg text-center shadow"><div class="text-2xl font-bold" id="directCount">0</div><div class="text-xs">直接あり</div></div>
-            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-3 rounded-lg text-center shadow"><div class="text-2xl font-bold" id="indirectCount">0</div><div class="text-xs">間接あり</div></div>
-            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-3 rounded-lg text-center shadow"><div class="text-2xl font-bold" id="assessedCount">0</div><div class="text-xs">評価完了</div></div>
-            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-3 rounded-lg text-center shadow"><div class="text-2xl font-bold" id="skipCount">0</div><div class="text-xs">間接省略可</div></div>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-indigo-500">
-            <h3 class="font-bold text-gray-700 mb-3">⚙️ 設定</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">プロジェクト名</label><input type="text" id="projectName" class="w-full p-1.5 border rounded text-sm"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">アウトカム</label><input type="text" id="outcomeName" class="w-full p-1.5 border rounded text-sm"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">参照治療</label><input type="text" id="referenceTreatment" class="w-full p-1.5 border rounded text-sm"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">タイプ</label><select id="outcomeType" class="w-full p-1.5 border rounded text-sm"><option value="dichotomous">2値(OR/RR)</option><option value="continuous">連続(MD)</option></select></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">更新回</label><input type="number" id="updateRound" class="w-full p-1.5 border rounded text-sm" value="1" min="1"><p class="text-xs text-gray-400">リビングSR用</p></div>
+            <div class="flow-sep">─── GRADE評価（順番に実施） ───</div>
+            <div style="padding-left:16px;">
+                <span class="step-badge step-a">A1</span>&nbsp;
+                <span class="step-badge step-a">A2</span>&nbsp;
+                <span class="flow-arrow">→</span>
+                <span class="step-badge step-b">B1</span>&nbsp;
+                <span class="step-badge step-b">B2</span>&nbsp;
+                <span class="step-badge step-b">B3</span>&nbsp;
+                <span class="flow-arrow">→</span>
+                <span class="step-badge step-c">C1</span>&nbsp;
+                <span class="step-badge step-c">C2</span>&nbsp;
+                <span class="step-badge step-c">C3</span>&nbsp;
+                <span class="flow-arrow">→</span>
+                <span class="step-badge step-d">D</span>
             </div>
-        </div>
-    </div>
-
-    <!-- ===== DATA INPUT ===== -->
-    <div id="nma-input" class="tab-content hidden bg-white p-5 rounded-b-lg rounded-tr-lg shadow-xl">
-        <div class="guidance-box mb-3">
-            <h4>必要データ</h4>
-            <p class="text-xs">①NMA推定値+CI ②直接推定値+CI ③間接推定値+CI ④RoB ⑤フォレストプロット ⑥ネットワークプロット ⑦研究特性表 <span class="ref">Izcovich BMJ 2023 p.2</span></p>
-        </div>
-        <div class="mb-2">
-            <button class="w-full bg-indigo-500 hover:bg-indigo-600 text-white p-2.5 rounded text-left flex justify-between items-center text-sm" onclick="toggleCollapsible(this)"><span>📊 統合テーブル入力 (Direct/Indirect/Network)</span><span>▼</span></button>
-            <div class="collapsible-content bg-gray-50 rounded-b border-x border-b">
-                <textarea id="integratedTableInput" class="w-full h-40 p-2 text-xs font-mono border rounded mb-2" placeholder="Comparison	Direct	Indirect	Network"></textarea>
-                <button class="bg-indigo-600 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="parseIntegratedTable()">解析</button>
-            </div>
-        </div>
-        <div class="mb-2">
-            <button class="w-full bg-indigo-500 hover:bg-indigo-600 text-white p-2.5 rounded text-left flex justify-between items-center text-sm" onclick="toggleCollapsible(this)"><span>📋 NMA CSV入力</span><span>▼</span></button>
-            <div class="collapsible-content bg-gray-50 rounded-b border-x border-b">
-                <textarea id="sumPmaInput" class="w-full h-40 p-2 text-xs font-mono border rounded mb-2" placeholder="比較,効果量,下限,上限"></textarea>
-                <button class="bg-indigo-600 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="parseNMAInput()">解析</button>
+            <div class="flow-sep">─── 結果出力 ───</div>
+            <div style="padding-left:16px;color:#475569;">
+                SoFテーブル <span class="flow-arrow">→</span> 色分け図 <span class="flow-arrow">→</span> 保存 / 読込
             </div>
         </div>
-        <div class="mb-2">
-            <button class="w-full bg-teal-500 hover:bg-teal-600 text-white p-2.5 rounded text-left flex justify-between items-center text-sm" onclick="toggleCollapsible(this)"><span>🔀 SideSplit結果入力</span><span>▼</span></button>
-            <div class="collapsible-content bg-gray-50 rounded-b border-x border-b">
-                <div class="text-xs bg-blue-50 p-2 rounded mb-2 border border-blue-200">
-                    <strong>対応形式:</strong> R netmetaの<code>netsplit()</code>出力。Coding/Direct/Indirect/Differenceセクションを自動認識。
-                    <span class="ref block mt-1">PPT slide 11: ノード分割はnetmetaのnetsplit関数で実施</span>
-                </div>
-                <textarea id="sidesplitOutput" class="w-full h-32 p-2 text-xs font-mono border rounded mb-2" placeholder="netsplit()の出力を貼り付け"></textarea>
-                <button class="bg-teal-600 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="parseSidesplitOutput()">解析</button>
+
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+
+        <!-- 各ステップの概要 -->
+        <p class="section-title">📋 各ステップの概要</p>
+        <table class="step-table">
+            <thead>
+                <tr><th>ステップ</th><th>内容</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="step-badge step-a">A1</span></td>
+                    <td>直接比較の4ドメイン評価（RoB・非一貫性・非直接性・出版バイアス）</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-a">A2</span></td>
+                    <td>直接推定値の不精確さ（非整合性 Serious の場合のみ）</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-b">B1</span></td>
+                    <td>ループ選択（間接エビデンスの出発点）</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-b">B2</span></td>
+                    <td>非推移性の評価</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-b">B3</span></td>
+                    <td>間接推定値の不精確さ（非整合性 Serious の場合のみ）</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-c">C1</span></td>
+                    <td>NMA出発点の選択（直接 vs 間接）</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-c">C2</span></td>
+                    <td>非整合性（netsplit p値）</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-c">C3</span></td>
+                    <td>NMA推定値の不精確さ</td>
+                </tr>
+                <tr>
+                    <td><span class="step-badge step-d">D</span></td>
+                    <td>最良推定値の選択</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+
+        <!-- クイックスタート -->
+        <p class="section-title">⚡ 初回テスト用クイックスタート</p>
+        <p style="font-size:0.83rem;color:#64748b;margin-bottom:12px;">サンプルデータ（smoking）を使って動作確認をする手順です。</p>
+        <ol class="quickstart-list">
+            <li>「1. データ読込」→ サンプルデータ「<strong>smoking</strong>」を選択 → 読込</li>
+            <li>「2. NMA実行」→ 参照介入を選択 → 「<strong>NMA実行</strong>」ボタン</li>
+            <li>「A1. 直接4ドメイン」→ 一括「<strong>Not serious</strong>」→「一括適用」→「保存」</li>
+            <li>「C2. 非整合性」→「<strong>p&ge;0.10 一括 NS</strong>」</li>
+            <li>「C3. NMA不精確さ」→「<strong>自動判定実行</strong>」</li>
+            <li>「D. 最良推定値」→「<strong>自動判定</strong>」</li>
+            <li>「SoFテーブル」→ 結果確認</li>
+        </ol>
+
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+
+        <!-- 使用パッケージ -->
+        <p class="section-title">📦 使用パッケージ</p>
+
+        <div class="pkg-grid">
+            <div class="pkg-group pkg-stat" style="margin-right:6px;">
+                <h4>📊 統計解析・NMA関連</h4>
+                <ul>
+                    <li><strong>netmeta</strong> — ネットワークメタアナリシスの頻度論的実行。<br><span style="color:#6b7280;font-size:0.78rem;">netmeta(), netsplit(), netrank(), netleague() 等</span></li>
+                    <li><strong>meta</strong> — ペアワイズメタアナリシス。netmetaの依存パッケージ。<br><span style="color:#6b7280;font-size:0.78rem;">metagen(), forest(), funnel() 等</span></li>
+                    <li><strong>NMA</strong> — サンプルデータセット提供。<br><span style="color:#6b7280;font-size:0.78rem;">smoking, heartfailure 等</span></li>
+                </ul>
+            </div>
+            <div class="pkg-group pkg-shiny">
+                <h4>🖥️ Shinyアプリ関連</h4>
+                <ul>
+                    <li><strong>shiny</strong> — インタラクティブウェブアプリフレームワーク</li>
+                    <li><strong>shinydashboard</strong> — ダッシュボードレイアウト</li>
+                    <li><strong>shinyWidgets</strong> — 追加UIウィジェット</li>
+                    <li><strong>shinyjs</strong> — JavaScript操作</li>
+                </ul>
             </div>
         </div>
-        <div class="mb-2">
-            <button class="w-full bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded text-left flex justify-between items-center text-sm" onclick="toggleCollapsible(this)"><span>📝 推移性情報</span><span>▼</span></button>
-            <div class="collapsible-content bg-gray-50 rounded-b border-x border-b">
-                <textarea id="transitivityInput" class="w-full h-24 p-2 text-xs border rounded mb-2" placeholder="効果修飾因子の分布メモ"></textarea>
-                <button class="bg-orange-600 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="saveTransitivity()">保存</button>
+        <div class="pkg-grid">
+            <div class="pkg-group pkg-data" style="margin-right:6px;">
+                <h4>📈 データ操作・可視化</h4>
+                <ul>
+                    <li><strong>dplyr</strong> — データ操作（case_when() 等）</li>
+                    <li><strong>tidyr</strong> — データ整形</li>
+                    <li><strong>ggplot2</strong> — 色分け図（Phillips et al.準拠）の描画</li>
+                    <li><strong>DT</strong> — インタラクティブなデータテーブル表示</li>
+                </ul>
+            </div>
+            <div class="pkg-group pkg-io">
+                <h4>💾 入出力</h4>
+                <ul>
+                    <li><strong>openxlsx</strong> — Excelファイル（.xlsx）の出力</li>
+                    <li><strong>jsonlite</strong> — JSON形式での保存・読込</li>
+                </ul>
             </div>
         </div>
-        <div id="parsedResults" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded"><div id="parsedResultsContent"></div></div>
-    </div>
 
-    <!-- ===== STEP A1 ===== -->
-    <div id="direct" class="tab-content hidden bg-white p-5 rounded-b-lg rounded-tr-lg shadow-xl">
-        <div class="guidance-box mb-3">
-            <h4><span class="step-indicator step-a">A1</span> 直接4ドメイン → 仮確実性（不精確さ除く）&nbsp;<a href="reference.html#section-rob" target="_blank" class="ref-popup-btn">&#128218; RoB比較</a><a href="reference.html#section-inconsistency" target="_blank" class="ref-popup-btn">&#128218; 非一貫性</a><a href="reference.html#section-indirectness" target="_blank" class="ref-popup-btn">&#128218; 非直接性</a></h4>
-            <p class="text-xs">RoB・非一貫性・非直接性・出版Bias。不精確さはC3で。<span class="ref ml-1">Brignardello-Petersen JCE 2018 Sec 3.1; Izcovich BMJ 2023 p.3</span></p>
-        </div>
-        <div class="mb-3 no-print">
-            <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded text-left flex justify-between items-center text-xs" onclick="toggleCollapsible(this)"><span>📖 判断基準</span><span>▼</span></button>
-            <div class="collapsible-content bg-gray-50 rounded-b border-x border-b text-xs">
-                <div class="grid grid-cols-2 gap-3">
-                    <div><strong>RoB:</strong> 高RoB重み&gt;50%→-2, 30-50%→-1 <span class="ref">Kamso P1 T1</span></div>
-                    <div><strong>非一貫性:</strong> I²&gt;50%→-1, 30-50%→要検討, 研究1件→不要 <span class="ref">Kamso P1 T1</span></div>
-                    <div><strong>非直接性:</strong> 高懸念重み&gt;50%→-1, 30-50%→要検討 <span class="ref">Kamso P1 Sec 2.3.2</span></div>
-                    <div><strong>出版Bias:</strong> Undetected or Strongly suspected <span class="ref">Guyatt JCE 2011</span></div>
-                </div>
-            </div>
-        </div>
-        <div id="directAssessmentTableContainer" class="overflow-x-auto"><p class="text-gray-500 p-4 text-center">データなし</p></div>
-    </div>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
 
-    <!-- ===== STEP B ===== -->
-    <div id="indirect" class="tab-content hidden bg-white p-5 rounded-b-lg rounded-tr-lg shadow-xl">
-        <div class="guidance-box mb-3">
-            <h4><span class="step-indicator step-b">B1</span> ループ & <span class="step-indicator step-b">B2</span> 非推移性&nbsp;<a href="reference.html#section-loop" target="_blank" class="ref-popup-btn">&#128218; ループ選択</a><a href="reference.html#section-intransitivity" target="_blank" class="ref-popup-btn">&#128218; 非推移性</a></h4>
-            <p class="text-xs">初期確実性=ループの2直接比較のmin(A1仮確実性)。非推移性を加えて間接仮確実性。<span class="ref ml-1">Izcovich BMJ 2023 p.4</span></p>
+        <!-- 引用 -->
+        <p class="section-title">📖 引用情報</p>
+        <div class="cite-box">
+            <strong>R 本体</strong><br>
+            R Core Team (2024). <em>R: A Language and Environment for Statistical Computing.</em> R Foundation for Statistical Computing, Vienna, Austria.
+            <a href="https://www.R-project.org/" target="_blank" style="color:#667eea;">https://www.R-project.org/</a>
         </div>
-        <div id="efficiencyNotices"></div>
-        <div id="transitivityReference" class="transitivity-box hidden"><h4 class="font-bold text-yellow-800 mb-1 text-sm">📝 推移性メモ</h4><div id="transitivityContent" class="text-xs whitespace-pre-wrap"></div></div>
-        <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-indigo-500 mb-4"><h3 class="font-bold text-gray-700 mb-1 text-sm">ネットワーク図</h3><div id="network-graph-container"></div></div>
-        <div id="indirectAssessmentTableContainer" class="overflow-x-auto"><p class="text-gray-500 p-4 text-center">データなし</p></div>
-    </div>
+        <div class="cite-box">
+            <strong>netmeta</strong><br>
+            Rücker G, Krahn U, König J, Efthimiou O, Schwarzer G (2024). <em>netmeta: Network Meta-Analysis using Frequentist Methods.</em> R package.<br>
+            関連論文: Rücker G. Network meta-analysis, electrical networks and graph theory. <em>Res Synth Methods.</em> 2012;3(4):312-324.
+        </div>
+        <div class="cite-box">
+            <strong>meta</strong><br>
+            Balduzzi S, Rücker G, Schwarzer G. How to perform a meta-analysis with R: a practical tutorial. <em>Evid Based Ment Health.</em> 2019;22(4):153-160.
+        </div>
 
-    <!-- ===== STEP C1-C2 ===== -->
-    <div id="network" class="tab-content hidden bg-white p-5 rounded-b-lg rounded-tr-lg shadow-xl">
-        <div class="guidance-box mb-3">
-            <h4><span class="step-indicator step-c">C1</span> 出発点(15シナリオ) & <span class="step-indicator step-c">C2</span> 非整合性&nbsp;<a href="reference.html#section-startpoint" target="_blank" class="ref-popup-btn">&#128218; 出発点比較</a><a href="reference.html#section-incoherence" target="_blank" class="ref-popup-btn">&#128218; 非整合性</a></h4>
-            <p class="text-xs">C1: 寄与の支配性+情報量+確実性から自動判定。C2: 点推定値・CI重複・p値。<span class="ref ml-1">Izcovich Supp file 3; Kamso P2 Fig 3</span></p>
-        </div>
-        <div class="mb-3 no-print">
-            <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded text-left flex justify-between items-center text-xs" onclick="toggleCollapsible(this)"><span>📖 15シナリオ出発点アルゴリズム</span><span>▼</span></button>
-            <div class="collapsible-content bg-gray-50 rounded-b border-x border-b text-xs">
-                <table class="criteria-table"><thead><tr><th>#</th><th>状況</th><th>出発点</th></tr></thead><tbody>
-                    <tr><td>S1</td><td>直接のみ</td><td>直接</td></tr>
-                    <tr><td>S2-S5</td><td>直接COE「高」</td><td>情報量adequate→直接, inadequate→支配的な方</td></tr>
-                    <tr><td>S6-S9</td><td>直接が高いが最高でない</td><td>同上</td></tr>
-                    <tr><td>S10-S13</td><td>直接COEが低い</td><td>間接の情報量判定→支配的な方</td></tr>
-                    <tr><td>S14</td><td>直接=間接COE</td><td>直接 or 間接</td></tr>
-                    <tr><td>S15</td><td>間接のみ</td><td>間接</td></tr>
-                </tbody></table>
-                <p class="ref mt-1">Izcovich BMJ 2023 Supp file 3; PPT slide 21-22</p>
-                <div class="diff-box mt-2"><strong>「支配的」判定:</strong> Kamso=寄与率&gt;60%, Brignardello-Petersen=CIの幅比較, Izcovich=NMA点推定値の近さ</div>
-            </div>
-        </div>
-        <div id="nmaAssessmentTableContainer" class="overflow-x-auto"><p class="text-gray-500 p-4 text-center">データなし</p></div>
-    </div>
+    </div><!-- /doc-card -->
+</div><!-- /container-custom -->
 
-    <!-- ===== STEP C3 & D ===== -->
-    <div id="imprecision" class="tab-content hidden bg-white p-5 rounded-b-lg rounded-tr-lg shadow-xl">
-        <div class="guidance-box mb-3">
-            <h4><span class="step-indicator step-c">C3</span> 不精確さ(自動計算) & <span class="step-indicator step-d">D</span> 最良推定値(自動選択)&nbsp;<a href="reference.html#section-imprecision" target="_blank" class="ref-popup-btn">&#128218; 不精確さ</a><a href="reference.html#section-bestestimate" target="_blank" class="ref-popup-btn">&#128218; 最良推定値</a></h4>
-            <p class="text-xs">C3: CI×閾値→効果の大きさ→OIS。D: 非整合性なし→NMA, あり→最高確実性。<span class="ref ml-1">GRADE guidelines 33; Izcovich p.6-7</span></p>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-indigo-500 mb-4">
-            <h3 class="font-bold text-gray-700 mb-3 text-sm">閾値設定</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div><label class="block text-xs font-bold mb-1">小効果(/1000)</label><input type="number" id="midThreshold" class="w-full p-1.5 border rounded text-sm" value="20"></div>
-                <div><label class="block text-xs font-bold mb-1">大効果(/1000)</label><input type="number" id="largeThreshold" class="w-full p-1.5 border rounded text-sm" value="100"></div>
-                <div><label class="block text-xs font-bold mb-1">参照群リスク</label><input type="number" id="baselineRisk" class="w-full p-1.5 border rounded text-sm" step="0.01" value="0.13"></div>
-                <div class="flex items-end"><button class="bg-indigo-600 text-white px-4 py-1.5 rounded text-sm font-bold" onclick="renderImprecisionAssessmentTable()">🔄再計算</button></div>
-            </div>
-        </div>
-        <div id="imprecisionAssessmentTableContainer" class="overflow-x-auto"><p class="text-gray-500 p-4 text-center">データなし</p></div>
-    </div>
-
-    <!-- ===== SUMMARY ===== -->
-    <div id="summary" class="tab-content hidden bg-white p-5 rounded-b-lg rounded-tr-lg shadow-xl">
-        <div class="guidance-box mb-3"><h4>📋 Summary of Findings</h4><p class="text-xs">全ステップ統合。ダウングレード理由を自動集約。印刷・CSV出力対応。</p></div>
-        <div class="flex flex-wrap gap-2 mb-4 no-print">
-            <button class="bg-indigo-600 text-white px-3 py-1.5 rounded font-bold text-sm" onclick="generateSummary()">📋表示</button>
-            <button class="bg-gray-500 text-white px-3 py-1.5 rounded font-bold text-sm" onclick="exportJSON()">💾保存</button>
-            <button class="bg-gray-500 text-white px-3 py-1.5 rounded font-bold text-sm" onclick="document.getElementById('importFile').click()">📤読込</button>
-            <input type="file" id="importFile" class="hidden" accept=".json" onchange="importJSON(event)">
-            <button class="bg-green-600 text-white px-3 py-1.5 rounded font-bold text-sm" onclick="exportCSV()">📊CSV</button>
-            <button class="bg-purple-600 text-white px-3 py-1.5 rounded font-bold text-sm" onclick="window.print()">🖨️印刷</button>
-        </div>
-        <div class="overflow-x-auto rounded-lg border border-gray-200">
-            <table class="assessment-table w-full text-left">
-                <thead><tr>
-                    <th class="p-2">比較</th><th class="p-2">Status</th><th class="p-2">NMA推定値</th><th class="p-2">絶対効果</th>
-                    <th class="p-2">A1直接</th><th class="p-2">B2間接</th><th class="p-2">C NMA</th>
-                    <th class="p-2">D最終</th><th class="p-2">採用</th><th class="p-2">理由</th>
-                </tr></thead>
-                <tbody id="summaryTableBody"><tr><td colspan="10" class="p-4 text-center text-gray-500">データなし</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script src="js/core.js"></script>
+<footer class="text-center text-white/50 text-xs py-6 px-6 mt-4">
+    <p>NMA GRADE評価サポートツール |
+       Izcovich et al. BMJ 2023;381:e074495 |
+       Kamso et al. JCE 2026 |
+       Brignardello-Petersen et al. JCE 2018/2019/2021 |
+       Puhan et al. BMJ 2014;349:g5630 |
+       Yao et al. JCE 2026;189:112050
+    </p>
+    <p class="mt-1">
+        <a href="https://github.com/mxe050/NMA-GRADE" target="_blank" class="underline hover:text-white/80">GitHub: mxe050/NMA-GRADE</a>
+    </p>
+</footer>
 </body>
 </html>
