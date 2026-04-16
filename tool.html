@@ -79,12 +79,10 @@
         <!-- ダウンロード -->
         <p class="section-title">📥 ダウンロード</p>
         <div class="download-section">
-            <a href="https://raw.githubusercontent.com/mxe050/NMA-GRADE/master/R/app.R"
-               download="app.R"
-               class="download-btn">
+            <button onclick="downloadAppR()" class="download-btn" style="border:none;cursor:pointer;">
                 <span style="font-size:1.4rem;">⬇️</span>
                 <span>app.R をダウンロード</span>
-            </a>
+            </button>
             <p class="download-sub">
                 単一ファイル版（app.R）をダウンロードして、RStudio または Rコンソールから実行してください。<br>
                 <a href="https://github.com/mxe050/NMA-GRADE/tree/master/R" target="_blank" class="gh-link" style="margin-top:4px;display:inline-flex;">
@@ -273,6 +271,37 @@ shiny::runApp("app.R")</div>
     </div><!-- /doc-card -->
 </div><!-- /container-custom -->
 
+<script>
+function downloadAppR() {
+    var url = 'https://raw.githubusercontent.com/mxe050/NMA-GRADE/master/R/app.R';
+    var btn = document.querySelector('.download-btn');
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span style="font-size:1.4rem;">⏳</span><span>ダウンロード中...</span>';
+    btn.disabled = true;
+    fetch(url)
+        .then(function(r) {
+            if (!r.ok) throw new Error('Network error');
+            return r.blob();
+        })
+        .then(function(blob) {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'app.R';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+            btn.innerHTML = '<span style="font-size:1.4rem;">✅</span><span>ダウンロード完了</span>';
+            btn.disabled = false;
+            setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        })
+        .catch(function(e) {
+            btn.innerHTML = orig;
+            btn.disabled = false;
+            window.open(url, '_blank');
+        });
+}
+</script>
 <footer class="text-center text-white/50 text-xs py-6 px-6 mt-4">
     <p>NMA GRADE評価サポートツール |
        Izcovich et al. BMJ 2023;381:e074495 |
